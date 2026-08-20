@@ -58,3 +58,16 @@ erneut öffnen. Der Modus (Generate/Transform) ist nach dem Anlegen fix, alle ü
   (Original-Liste vor der Transformation)
 - alle normalen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, …) stehen wie gewohnt
   zur Verfügung.
+
+## Standard-Sensor-Eigenschaften
+
+Wie beim eingebauten Template-Sensor-Helfer lassen sich zusätzlich pflegen (alle optional):
+
+- **Einheit** (`unit_of_measurement`)
+- **Geräteklasse** (`device_class`, Dropdown mit allen gültigen `SensorDeviceClass`-Werten)
+- **Statusklasse** (`state_class`, `measurement` / `total` / `total_increasing`)
+- **Icon** (Icon-Picker, z. B. `mdi:currency-eur`)
+
+Diese Felder wirken sich nur auf den State/die Darstellung der Entität aus, nicht auf die
+Berechnung – für die einzelnen Forecast-Werte im Attribut gibt es (bewusst, analog zu den
+meisten Forecast-Konventionen) keine separate Einheit pro Listenelement.

@@ -12,6 +12,9 @@ CONF_ATTRIBUTE_TEMPLATE = "attribute_template"
 CONF_TARGET_ATTRIBUTE = "target_attribute"
 CONF_UPDATE_INTERVAL = "update_interval_minutes"
 CONF_UNIT_OF_MEASUREMENT = "unit_of_measurement"
+CONF_DEVICE_CLASS = "device_class"
+CONF_STATE_CLASS = "state_class"
+CONF_ICON = "icon"
 
 # Generate-Modus
 CONF_HORIZON_STEPS = "horizon_steps"

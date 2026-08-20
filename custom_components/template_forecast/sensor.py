@@ -5,7 +5,7 @@ import logging
 from datetime import timedelta
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import Event, HomeAssistant, callback
@@ -20,11 +20,14 @@ import homeassistant.util.dt as dt_util
 
 from .const import (
     CONF_ATTRIBUTE_TEMPLATE,
+    CONF_DEVICE_CLASS,
     CONF_HORIZON_STEPS,
+    CONF_ICON,
     CONF_MODE,
     CONF_NAME,
     CONF_SOURCE_ATTRIBUTE,
     CONF_SOURCE_ENTITY,
+    CONF_STATE_CLASS,
     CONF_STATE_TEMPLATE,
     CONF_STEP_MINUTES,
     CONF_TARGET_ATTRIBUTE,
@@ -93,6 +96,20 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
         )
         unit = cfg.get(CONF_UNIT_OF_MEASUREMENT)
         self._attr_native_unit_of_measurement = unit or None
+
+        device_class = cfg.get(CONF_DEVICE_CLASS)
+        self._attr_device_class = (
+            SensorDeviceClass(device_class) if device_class else None
+        )
+
+        state_class = cfg.get(CONF_STATE_CLASS)
+        self._attr_state_class = (
+            SensorStateClass(state_class) if state_class else None
+        )
+
+        icon = cfg.get(CONF_ICON)
+        self._attr_icon = icon or None
+
         self._update_interval = cfg.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
 
         self._horizon_steps = cfg.get(CONF_HORIZON_STEPS, DEFAULT_HORIZON_STEPS)

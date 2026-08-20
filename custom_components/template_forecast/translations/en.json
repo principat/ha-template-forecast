@@ -25,6 +25,9 @@
           "attribute_template": "Attribute template (evaluated per step)",
           "target_attribute": "Target attribute name",
           "unit_of_measurement": "Unit of measurement (optional)",
+          "device_class": "Device class (optional)",
+          "state_class": "State class (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
         }
       },
@@ -37,6 +40,9 @@
           "attribute_template": "Attribute template (evaluated per list item)",
           "target_attribute": "Target attribute name",
           "unit_of_measurement": "Unit of measurement (optional)",
+          "device_class": "Device class (optional)",
+          "state_class": "State class (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
         }
       }
@@ -58,6 +64,9 @@
           "attribute_template": "Attribute template",
           "target_attribute": "Target attribute name",
           "unit_of_measurement": "Unit of measurement (optional)",
+          "device_class": "Device class (optional)",
+          "state_class": "State class (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
         }
       }

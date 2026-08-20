@@ -4,11 +4,14 @@ from __future__ import annotations
 from homeassistant.core import HomeAssistant
 from custom_components.template_forecast.const import (
     CONF_ATTRIBUTE_TEMPLATE,
+    CONF_DEVICE_CLASS,
     CONF_HORIZON_STEPS,
+    CONF_ICON,
     CONF_MODE,
     CONF_NAME,
     CONF_SOURCE_ATTRIBUTE,
     CONF_SOURCE_ENTITY,
+    CONF_STATE_CLASS,
     CONF_STATE_TEMPLATE,
     CONF_STEP_MINUTES,
     CONF_TARGET_ATTRIBUTE,
@@ -16,6 +19,7 @@ from custom_components.template_forecast.const import (
     MODE_GENERATE,
     MODE_TRANSFORM,
 )
+from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 
@@ -163,3 +167,61 @@ async def test_transform_mode_handles_missing_source_attribute(
     state = hass.states.get("sensor.leer")
     assert state.state == "0"
     assert state.attributes["forecast"] == []
+
+
+async def test_standard_sensor_properties_are_applied(hass: HomeAssistant) -> None:
+    """unit_of_measurement, device_class, state_class und icon landen auf der Entity."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Preis mit Eigenschaften",
+        data={
+            CONF_MODE: MODE_GENERATE,
+            CONF_NAME: "Preis mit Eigenschaften",
+            CONF_HORIZON_STEPS: 2,
+            CONF_STEP_MINUTES: 60,
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: "{{ index }}",
+            CONF_TARGET_ATTRIBUTE: "forecast",
+            CONF_UNIT_OF_MEASUREMENT: "EUR/kWh",
+            CONF_DEVICE_CLASS: "monetary",
+            CONF_STATE_CLASS: "measurement",
+            CONF_ICON: "mdi:currency-eur",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.preis_mit_eigenschaften")
+    assert state is not None
+    assert state.attributes["unit_of_measurement"] == "EUR/kWh"
+    assert state.attributes["device_class"] == "monetary"
+    assert state.attributes["state_class"] == "measurement"
+    assert state.attributes["icon"] == "mdi:currency-eur"
+
+
+async def test_standard_sensor_properties_default_to_none(hass: HomeAssistant) -> None:
+    """Ohne Angabe bleiben device_class/state_class/icon unangetastet (kein Crash)."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Ohne Extras",
+        data={
+            CONF_MODE: MODE_GENERATE,
+            CONF_NAME: "Ohne Extras",
+            CONF_HORIZON_STEPS: 2,
+            CONF_STEP_MINUTES: 60,
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: "{{ index }}",
+            CONF_TARGET_ATTRIBUTE: "forecast",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.ohne_extras")
+    assert state is not None
+    assert state.attributes.get("device_class") is None
+    assert state.attributes.get("state_class") is None

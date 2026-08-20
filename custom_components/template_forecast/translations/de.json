@@ -25,6 +25,9 @@
           "attribute_template": "Attribut-Template (pro Schritt ausgewertet)",
           "target_attribute": "Name des Ziel-Attributs",
           "unit_of_measurement": "Einheit (optional)",
+          "device_class": "Geräteklasse (optional)",
+          "state_class": "Statusklasse (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Neuberechnung alle (Minuten)"
         }
       },
@@ -37,6 +40,9 @@
           "attribute_template": "Attribut-Template (pro Listenelement ausgewertet)",
           "target_attribute": "Name des Ziel-Attributs",
           "unit_of_measurement": "Einheit (optional)",
+          "device_class": "Geräteklasse (optional)",
+          "state_class": "Statusklasse (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Neuberechnung alle (Minuten)"
         }
       }
@@ -58,6 +64,9 @@
           "attribute_template": "Attribut-Template",
           "target_attribute": "Name des Ziel-Attributs",
           "unit_of_measurement": "Einheit (optional)",
+          "device_class": "Geräteklasse (optional)",
+          "state_class": "Statusklasse (optional)",
+          "icon": "Icon (optional)",
           "update_interval_minutes": "Neuberechnung alle (Minuten)"
         }
       }

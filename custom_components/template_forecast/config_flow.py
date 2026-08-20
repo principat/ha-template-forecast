@@ -6,6 +6,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import callback
 from homeassistant.helpers import selector
@@ -13,11 +14,14 @@ from homeassistant.helpers.template import Template
 
 from .const import (
     CONF_ATTRIBUTE_TEMPLATE,
+    CONF_DEVICE_CLASS,
     CONF_HORIZON_STEPS,
+    CONF_ICON,
     CONF_MODE,
     CONF_NAME,
     CONF_SOURCE_ATTRIBUTE,
     CONF_SOURCE_ENTITY,
+    CONF_STATE_CLASS,
     CONF_STATE_TEMPLATE,
     CONF_STEP_MINUTES,
     CONF_TARGET_ATTRIBUTE,
@@ -30,6 +34,32 @@ from .const import (
     MODE_GENERATE,
     MODE_TRANSFORM,
 )
+
+_NONE_OPTION = selector.SelectOptionDict(value="", label="—")
+
+
+def _device_class_selector() -> selector.SelectSelector:
+    options = [_NONE_OPTION] + [
+        selector.SelectOptionDict(value=c.value, label=c.value)
+        for c in SensorDeviceClass
+    ]
+    return selector.SelectSelector(
+        selector.SelectSelectorConfig(
+            options=options, mode=selector.SelectSelectorMode.DROPDOWN
+        )
+    )
+
+
+def _state_class_selector() -> selector.SelectSelector:
+    options = [_NONE_OPTION] + [
+        selector.SelectOptionDict(value=c.value, label=c.value)
+        for c in SensorStateClass
+    ]
+    return selector.SelectSelector(
+        selector.SelectSelectorConfig(
+            options=options, mode=selector.SelectSelectorMode.DROPDOWN
+        )
+    )
 
 
 def _common_schema(defaults: dict[str, Any]) -> dict:
@@ -56,6 +86,18 @@ def _common_schema(defaults: dict[str, Any]) -> dict:
             CONF_UNIT_OF_MEASUREMENT,
             default=defaults.get(CONF_UNIT_OF_MEASUREMENT, ""),
         ): str,
+        vol.Optional(
+            CONF_DEVICE_CLASS,
+            default=defaults.get(CONF_DEVICE_CLASS, ""),
+        ): _device_class_selector(),
+        vol.Optional(
+            CONF_STATE_CLASS,
+            default=defaults.get(CONF_STATE_CLASS, ""),
+        ): _state_class_selector(),
+        vol.Optional(
+            CONF_ICON,
+            default=defaults.get(CONF_ICON, ""),
+        ): selector.IconSelector(),
         vol.Optional(
             CONF_UPDATE_INTERVAL,
             default=defaults.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL),
