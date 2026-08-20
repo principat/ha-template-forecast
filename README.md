@@ -9,8 +9,7 @@ Zwei Modi:
   Attribut-Template wird für jeden Schritt einmal ausgewertet und ergibt eine `forecast`-Liste
   (Standardname konfigurierbar).
 - **Transform**: du wählst eine bestehende Entität, deren Listen-Attribut (z. B. `forecast`)
-  Schritt für Schritt durch dein Template gejagt wird (Zeitstempel bleiben erhalten, nur der
-  Wert wird transformiert).
+  Schritt für Schritt durch dein Template gejagt wird. Dabei kannst du ein neues Objekt aufbauen.
 
 In beiden Modi ist zusätzlich ein **State-Template** Pflicht, das unabhängig vom Attribut-Template
 gerendert wird und Zugriff auf das fertige Forecast-Ergebnis hat (Variable `forecast`).
@@ -50,10 +49,9 @@ erneut öffnen. Der Modus (Generate/Transform) ist nach dem Anlegen fix, alle ü
 - `index` – Position in der Quell-Liste
 - `item` – das komplette Original-Element (dict) aus dem Quellattribut
 - `value` – `item.value`, falls vorhanden (Convenience)
-- `orig_datetime` – `item.datetime`, falls vorhanden (Convenience)
 
 ### State-Template (beide Modi)
-- `forecast` – die bereits berechnete Ergebnis-Liste (Liste von `{datetime, value}`)
+- `forecast` – die bereits berechnete Ergebnis-Liste (Liste von `{time, value}`)
 - zusätzlich im Transform-Modus: `source` (State der Quell-Entität), `source_forecast`
   (Original-Liste vor der Transformation)
 - alle normalen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, …) stehen wie gewohnt

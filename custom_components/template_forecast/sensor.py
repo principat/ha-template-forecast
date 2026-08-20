@@ -172,7 +172,6 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
             "forecast_time": dt_util.utcnow(),
             "item": {},
             "value": None,
-            "orig_datetime": None,
             "forecast": [],
             "source": None,
             "source_forecast": [],
@@ -231,7 +230,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
             )
             forecast_list.append(
                 {
-                    "datetime": forecast_time.isoformat(),
+                    "time": forecast_time.isoformat(),
                     "value": _try_number(value),
                 }
             )
@@ -259,16 +258,12 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
                 "index": index,
                 "item": item,
                 "value": item.get("value"),
-                "orig_datetime": item.get("datetime"),
             }
             value = self._attribute_template.async_render(
-                variables, parse_result=False
+                variables, parse_result=True
             )
             forecast_list.append(
-                {
-                    "datetime": item.get("datetime"),
-                    "value": _try_number(value),
-                }
+                value
             )
 
         extra_vars = {
