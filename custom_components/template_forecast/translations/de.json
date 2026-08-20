@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Template Forecast",
+        "description": "Name und Modus für den neuen Forecast-Helfer.",
+        "data": {
+          "name": "Name",
+          "mode": "Modus"
+        }
+      },
+      "transform_source": {
+        "title": "Quell-Entität",
+        "description": "Entität, deren Listen-Attribut transformiert werden soll.",
+        "data": {
+          "source_entity": "Quell-Entität"
+        }
+      },
+      "generate": {
+        "title": "Planungshorizont & Templates",
+        "data": {
+          "horizon_steps": "Anzahl Schritte",
+          "step_minutes": "Minuten pro Schritt",
+          "state_template": "State-Template",
+          "attribute_template": "Attribut-Template (pro Schritt ausgewertet)",
+          "target_attribute": "Name des Ziel-Attributs",
+          "unit_of_measurement": "Einheit (optional)",
+          "update_interval_minutes": "Neuberechnung alle (Minuten)"
+        }
+      },
+      "transform": {
+        "title": "Templates",
+        "description": "Quell-Entität: {source_entity}",
+        "data": {
+          "source_attribute": "Quellattribut (muss eine Liste sein)",
+          "state_template": "State-Template",
+          "attribute_template": "Attribut-Template (pro Listenelement ausgewertet)",
+          "target_attribute": "Name des Ziel-Attributs",
+          "unit_of_measurement": "Einheit (optional)",
+          "update_interval_minutes": "Neuberechnung alle (Minuten)"
+        }
+      }
+    },
+    "error": {
+      "invalid_template": "Template ist ungültig."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Template-Forecast-Helfer bearbeiten",
+        "data": {
+          "source_entity": "Quell-Entität",
+          "source_attribute": "Quellattribut (muss eine Liste sein)",
+          "horizon_steps": "Anzahl Schritte",
+          "step_minutes": "Minuten pro Schritt",
+          "state_template": "State-Template",
+          "attribute_template": "Attribut-Template",
+          "target_attribute": "Name des Ziel-Attributs",
+          "unit_of_measurement": "Einheit (optional)",
+          "update_interval_minutes": "Neuberechnung alle (Minuten)"
+        }
+      }
+    },
+    "error": {
+      "invalid_template": "Template ist ungültig."
+    }
+  }
+}

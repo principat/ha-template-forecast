@@ -1,0 +1,12 @@
+{
+  "domain": "template_forecast",
+  "name": "Template Forecast",
+  "codeowners": ["@your-github-handle"],
+  "config_flow": true,
+  "documentation": "https://github.com/your-github-handle/ha-template-forecast",
+  "issue_tracker": "https://github.com/your-github-handle/ha-template-forecast/issues",
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "requirements": [],
+  "version": "0.1.0"
+}

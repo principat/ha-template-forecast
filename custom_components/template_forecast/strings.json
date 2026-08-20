@@ -1,0 +1,69 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Template Forecast",
+        "description": "Name and mode for the new forecast helper.",
+        "data": {
+          "name": "Name",
+          "mode": "Mode"
+        }
+      },
+      "transform_source": {
+        "title": "Source entity",
+        "description": "Entity whose list attribute should be transformed.",
+        "data": {
+          "source_entity": "Source entity"
+        }
+      },
+      "generate": {
+        "title": "Planning horizon & templates",
+        "data": {
+          "horizon_steps": "Number of steps",
+          "step_minutes": "Minutes per step",
+          "state_template": "State template",
+          "attribute_template": "Attribute template (evaluated per step)",
+          "target_attribute": "Target attribute name",
+          "unit_of_measurement": "Unit of measurement (optional)",
+          "update_interval_minutes": "Recalculation interval (minutes)"
+        }
+      },
+      "transform": {
+        "title": "Templates",
+        "description": "Source entity: {source_entity}",
+        "data": {
+          "source_attribute": "Source attribute (must be a list)",
+          "state_template": "State template",
+          "attribute_template": "Attribute template (evaluated per list item)",
+          "target_attribute": "Target attribute name",
+          "unit_of_measurement": "Unit of measurement (optional)",
+          "update_interval_minutes": "Recalculation interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "invalid_template": "Template is not valid."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Edit Template Forecast helper",
+        "data": {
+          "source_entity": "Source entity",
+          "source_attribute": "Source attribute (must be a list)",
+          "horizon_steps": "Number of steps",
+          "step_minutes": "Minutes per step",
+          "state_template": "State template",
+          "attribute_template": "Attribute template",
+          "target_attribute": "Target attribute name",
+          "unit_of_measurement": "Unit of measurement (optional)",
+          "update_interval_minutes": "Recalculation interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "invalid_template": "Template is not valid."
+    }
+  }
+}
