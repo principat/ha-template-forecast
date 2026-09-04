@@ -1,5 +1,7 @@
 # Template Forecast (Home Assistant Helper)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=principat&repository=ha-template-forecast&category=integration)
+
 A HACS custom integration that generates forecast sensors from Jinja2 templates –
 as a "helper" through the normal UI (Settings → Devices & Services → Helpers → Create Helper).
 
@@ -41,8 +43,11 @@ Commits that don't match a release type (e.g. `chore:`, `docs:`) don't trigger a
 
 ## Installation
 
-1. Add as a custom repository in HACS (category "Integration"), or copy the
-   `custom_components/template_forecast` folder manually to `config/custom_components/`.
+1. Click the "Open in your Home Assistant instance" badge above (requires HACS and
+   [My Home Assistant](https://www.home-assistant.io/integrations/my/) to be set up), or
+   add `principat/ha-template-forecast` as a custom repository in HACS manually (category
+   "Integration"), or copy the `custom_components/template_forecast` folder directly to
+   `config/custom_components/`.
 2. Restart Home Assistant.
 3. Settings → Devices & Services → Helpers → "+ Create Helper" → "Template Forecast".
 
