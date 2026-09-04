@@ -1,18 +1,18 @@
 # Template Forecast (Home Assistant Helper)
 
-Ein HACS-Custom-Integration, die Forecast-Sensoren aus Jinja2-Templates erzeugt –
-als "Helfer" über die normale UI (Einstellungen → Geräte & Dienste → Helfer → Helfer erstellen).
+A HACS custom integration that generates forecast sensors from Jinja2 templates –
+as a "helper" through the normal UI (Settings → Devices & Services → Helpers → Create Helper).
 
-Zwei Modi:
+Two modes:
 
-- **Generate**: du gibst einen Planungshorizont (Anzahl Schritte + Schrittweite) an. Das
-  Attribut-Template wird für jeden Schritt einmal ausgewertet und ergibt eine `forecast`-Liste
-  (Standardname konfigurierbar).
-- **Transform**: du wählst eine bestehende Entität, deren Listen-Attribut (z. B. `forecast`)
-  Schritt für Schritt durch dein Template gejagt wird. Dabei kannst du ein neues Objekt aufbauen.
+- **Generate**: you specify a planning horizon (number of steps + step size). The
+  attribute template is evaluated once per step and produces a `forecast` list
+  (default name configurable).
+- **Transform**: you select an existing entity whose list attribute (e.g. `forecast`)
+  is run step by step through your template. You can build a new object in the process.
 
-In beiden Modi ist zusätzlich ein **State-Template** Pflicht, das unabhängig vom Attribut-Template
-gerendert wird und Zugriff auf das fertige Forecast-Ergebnis hat (Variable `forecast`).
+In both modes a **state template** is also required, which is rendered independently
+of the attribute template and has access to the finished forecast result (variable `forecast`).
 
 ## Tests
 
@@ -21,51 +21,51 @@ pip install -r requirements_test.txt
 pytest
 ```
 
-8 Tests decken Config-Flow (Generate/Transform/Options, inkl. Ablehnung ungültiger
-Templates) und die Sensor-Berechnungslogik (lineare Rampe, Element-Transformation,
-automatisches Neuberechnen bei Quell-Update, leere Quelle) ab.
+8 tests cover the config flow (generate/transform/options, including rejection of invalid
+templates) and the sensor calculation logic (linear ramp, per-item transformation,
+automatic recalculation on source update, empty source).
 
 ## Installation
 
-1. Als Custom Repository in HACS hinzufügen (Kategorie "Integration") oder den Ordner
-   `custom_components/template_forecast` manuell nach `config/custom_components/` kopieren.
-2. Home Assistant neu starten.
-3. Einstellungen → Geräte & Dienste → Helfer → "+ Helfer erstellen" → "Template Forecast".
+1. Add as a custom repository in HACS (category "Integration"), or copy the
+   `custom_components/template_forecast` folder manually to `config/custom_components/`.
+2. Restart Home Assistant.
+3. Settings → Devices & Services → Helpers → "+ Create Helper" → "Template Forecast".
 
-## Bearbeiten
+## Editing
 
-Bereits erstellte Helfer lassen sich jederzeit über die drei Punkte am Helfer → "Konfigurieren"
-erneut öffnen. Der Modus (Generate/Transform) ist nach dem Anlegen fix, alle übrigen Felder
-(Templates, Horizont, Update-Intervall, Zielattribut, Quelle) sind änderbar.
+Helpers that have already been created can be reopened at any time via the three dots
+next to the helper → "Configure". The mode (Generate/Transform) is fixed once created,
+all other fields (templates, horizon, update interval, target attribute, source) can be changed.
 
-## Template-Variablen
+## Template Variables
 
-### Generate-Modus, Attribut-Template
-- `index` – 0-basierter Schrittindex
-- `horizon` – Gesamtzahl der Schritte
-- `forecast_time` – Zeitpunkt dieses Schritts (datetime, UTC)
+### Generate mode, attribute template
+- `index` – 0-based step index
+- `horizon` – total number of steps
+- `forecast_time` – timestamp of this step (datetime, UTC)
 
-### Transform-Modus, Attribut-Template
-- `index` – Position in der Quell-Liste
-- `item` – das komplette Original-Element (dict) aus dem Quellattribut
-- `value` – `item.value`, falls vorhanden (Convenience)
+### Transform mode, attribute template
+- `index` – position in the source list
+- `item` – the complete original element (dict) from the source attribute
+- `value` – `item.value`, if present (convenience)
 
-### State-Template (beide Modi)
-- `forecast` – die bereits berechnete Ergebnis-Liste (Liste von `{time, value}`)
-- zusätzlich im Transform-Modus: `source` (State der Quell-Entität), `source_forecast`
-  (Original-Liste vor der Transformation)
-- alle normalen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, …) stehen wie gewohnt
-  zur Verfügung.
+### State template (both modes)
+- `forecast` – the already computed result list (list of `{time, value}`)
+- additionally in transform mode: `source` (state of the source entity), `source_forecast`
+  (original list before the transformation)
+- all normal Jinja functions (`states()`, `state_attr()`, `now()`, …) are available
+  as usual.
 
-## Standard-Sensor-Eigenschaften
+## Default Sensor Properties
 
-Wie beim eingebauten Template-Sensor-Helfer lassen sich zusätzlich pflegen (alle optional):
+As with the built-in template sensor helper, the following can also be set (all optional):
 
-- **Einheit** (`unit_of_measurement`)
-- **Geräteklasse** (`device_class`, Dropdown mit allen gültigen `SensorDeviceClass`-Werten)
-- **Statusklasse** (`state_class`, `measurement` / `total` / `total_increasing`)
-- **Icon** (Icon-Picker, z. B. `mdi:currency-eur`)
+- **Unit** (`unit_of_measurement`)
+- **Device class** (`device_class`, dropdown with all valid `SensorDeviceClass` values)
+- **State class** (`state_class`, `measurement` / `total` / `total_increasing`)
+- **Icon** (icon picker, e.g. `mdi:currency-eur`)
 
-Diese Felder wirken sich nur auf den State/die Darstellung der Entität aus, nicht auf die
-Berechnung – für die einzelnen Forecast-Werte im Attribut gibt es (bewusst, analog zu den
-meisten Forecast-Konventionen) keine separate Einheit pro Listenelement.
+These fields only affect the state/display of the entity, not the calculation –
+for the individual forecast values in the attribute there is (deliberately, analogous to
+most forecast conventions) no separate unit per list item.

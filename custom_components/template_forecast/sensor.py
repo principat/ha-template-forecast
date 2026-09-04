@@ -1,4 +1,4 @@
-"""Sensor-Plattform für Template Forecast."""
+"""Sensor platform for Template Forecast."""
 from __future__ import annotations
 
 import logging
@@ -48,12 +48,12 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Helfer-Entity aus der Config-Entry erzeugen."""
+    """Create the helper entity from the config entry."""
     async_add_entities([TemplateForecastSensor(hass, entry)])
 
 
 def _try_number(value: Any) -> Any:
-    """Rendert Templates liefern Strings, Zahlen sollen aber Zahlen bleiben."""
+    """Rendered templates return strings, but numbers should stay numbers."""
     if isinstance(value, str):
         try:
             if "." in value:
@@ -65,7 +65,7 @@ def _try_number(value: Any) -> Any:
 
 
 class TemplateForecastSensor(SensorEntity, RestoreEntity):
-    """Ein Sensor, dessen State und Forecast-Attribut aus Templates berechnet werden."""
+    """A sensor whose state and forecast attribute are computed from templates."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
@@ -74,7 +74,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
         self.hass = hass
         self._entry = entry
         self._attr_unique_id = entry.entry_id
-        self._attr_name = None  # Titel der Config-Entry wird als Entity-Name genutzt
+        self._attr_name = None  # config entry title is used as the entity name
         self._unsub_state_tracking: list[Any] = []
         self._unsub_timer: Any = None
         self._attr_native_value = None
@@ -82,7 +82,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
         self._apply_config()
 
     def _config(self) -> dict[str, Any]:
-        """Data + Options zusammenführen (Options gewinnen)."""
+        """Merge data + options (options win)."""
         return {**self._entry.data, **self._entry.options}
 
     def _apply_config(self) -> None:
@@ -137,7 +137,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
 
     @callback
     def _async_setup_tracking(self) -> None:
-        """Neuberechnung bei State-Changes relevanter Entities + periodisch."""
+        """Recompute on state changes of relevant entities + periodically."""
         entities: set[str] = set()
 
         for tpl in (self._state_template, self._attribute_template):
@@ -146,7 +146,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
                 entities.update(info.entities)
             except Exception:  # noqa: BLE001
                 _LOGGER.debug(
-                    "Konnte Template-Abhängigkeiten für %s nicht ermitteln",
+                    "Could not determine template dependencies for %s",
                     self.entity_id,
                 )
 
@@ -165,7 +165,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
         )
 
     def _dummy_variables(self) -> dict[str, Any]:
-        """Platzhalter-Variablen nur zur Abhängigkeitserkennung (kein echtes Rendern)."""
+        """Placeholder variables only for dependency detection (no real rendering)."""
         return {
             "index": 0,
             "horizon": self._horizon_steps,
@@ -193,7 +193,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
                 forecast_list, extra_vars = self._compute_transform()
         except Exception:  # noqa: BLE001
             _LOGGER.exception(
-                "Fehler bei der Forecast-Berechnung für %s", self.entity_id
+                "Error computing the forecast for %s", self.entity_id
             )
             return
 
@@ -204,7 +204,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
             )
         except Exception:  # noqa: BLE001
             _LOGGER.exception(
-                "Fehler beim Rendern des State-Templates für %s", self.entity_id
+                "Error rendering the state template for %s", self.entity_id
             )
             rendered_state = None
 
@@ -230,7 +230,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
             )
             forecast_list.append(
                 {
-                    "time": forecast_time.isoformat(),
+                    "time": forecast_time.replace(second=0, microsecond=0).isoformat(),
                     "value": _try_number(value),
                 }
             )
@@ -245,7 +245,7 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
 
         if not isinstance(source_list, list):
             _LOGGER.warning(
-                "Attribut '%s' von %s ist keine Liste, wird ignoriert",
+                "Attribute '%s' of %s is not a list, ignoring it",
                 self._source_attribute,
                 self._source_entity,
             )

@@ -1,10 +1,10 @@
-"""Konstanten für die Template Forecast Integration."""
+"""Constants for the Template Forecast integration."""
 from __future__ import annotations
 
 DOMAIN = "template_forecast"
 PLATFORMS = ["sensor"]
 
-# Gemeinsame Config-Keys
+# Common config keys
 CONF_MODE = "mode"
 CONF_NAME = "name"
 CONF_STATE_TEMPLATE = "state_template"
@@ -16,11 +16,11 @@ CONF_DEVICE_CLASS = "device_class"
 CONF_STATE_CLASS = "state_class"
 CONF_ICON = "icon"
 
-# Generate-Modus
+# Generate mode
 CONF_HORIZON_STEPS = "horizon_steps"
 CONF_STEP_MINUTES = "step_minutes"
 
-# Transform-Modus
+# Transform mode
 CONF_SOURCE_ENTITY = "source_entity"
 CONF_SOURCE_ATTRIBUTE = "source_attribute"
 

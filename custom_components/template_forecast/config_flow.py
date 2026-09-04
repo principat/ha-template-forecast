@@ -1,4 +1,4 @@
-"""Config- und Options-Flow für Template Forecast."""
+"""Config and options flow for Template Forecast."""
 from __future__ import annotations
 
 from typing import Any
@@ -63,13 +63,12 @@ def _state_class_selector() -> selector.SelectSelector:
 
 
 def _common_schema(defaults: dict[str, Any]) -> dict:
-    """Felder, die in beiden Modi vorkommen.
+    """Fields that appear in both modes.
 
-    Templates bewusst als einfache Strings (nicht selector.TemplateSelector):
-    der TemplateSelector validiert bereits auf Voluptuous-Schema-Ebene und wirft
-    dabei eine harte Exception, bevor async_step_* überhaupt läuft - das würde
-    _validate_templates() umgehen und dem Nutzer einen Absturz statt eines
-    Formularfehlers zeigen.
+    Templates are deliberately plain strings (not selector.TemplateSelector):
+    the TemplateSelector already validates at the voluptuous schema level and
+    raises a hard exception before async_step_* even runs - that would bypass
+    _validate_templates() and show the user a crash instead of a form error.
     """
     return {
         vol.Required(
@@ -132,7 +131,7 @@ def _transform_schema(defaults: dict[str, Any]) -> vol.Schema:
 
 
 def _validate_templates(hass, user_input: dict[str, Any]) -> dict[str, str]:
-    """Templates syntaktisch prüfen, ohne die tatsächlichen Variablen zu kennen."""
+    """Check templates syntactically, without knowing the actual variables."""
     errors: dict[str, str] = {}
     for key in (CONF_STATE_TEMPLATE, CONF_ATTRIBUTE_TEMPLATE):
         value = user_input.get(key, "")
@@ -147,7 +146,7 @@ def _validate_templates(hass, user_input: dict[str, Any]) -> dict[str, str]:
 
 
 class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Anlegen eines neuen Template-Forecast-Helfers."""
+    """Create a new Template Forecast helper."""
 
     VERSION = 1
 
@@ -159,7 +158,7 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        """Erster Schritt: Name + Modus wählen."""
+        """First step: choose name + mode."""
         errors: dict[str, str] = {}
         if user_input is not None:
             self._mode = user_input[CONF_MODE]
@@ -173,8 +172,8 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_NAME): str,
                 vol.Required(CONF_MODE, default=MODE_GENERATE): vol.In(
                     {
-                        MODE_GENERATE: "Generate – Werte über einen Planungshorizont erzeugen",
-                        MODE_TRANSFORM: "Transform – bestehenden Forecast-Sensor transformieren",
+                        MODE_GENERATE: "Generate – produce values over a planning horizon",
+                        MODE_TRANSFORM: "Transform – transform an existing forecast sensor",
                     }
                 ),
             }
@@ -184,7 +183,7 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_transform_source(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        """Nur im Transform-Modus: Quell-Entität separat abfragen."""
+        """Transform mode only: ask for the source entity separately."""
         errors: dict[str, str] = {}
         if user_input is not None:
             self._source_entity = user_input[CONF_SOURCE_ENTITY]
@@ -246,11 +245,11 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class TemplateForecastOptionsFlow(config_entries.OptionsFlow):
-    """Nachträgliches Bearbeiten eines bestehenden Helfers.
+    """Subsequent editing of an existing helper.
 
-    Der Modus (Generate/Transform) steht nach dem Anlegen fest, da er die
-    grundlegende Berechnungslogik bestimmt. Alle übrigen Felder inkl. der
-    Quell-Entität im Transform-Modus bleiben änderbar.
+    The mode (Generate/Transform) is fixed once created, since it determines
+    the underlying calculation logic. All other fields, including the source
+    entity in transform mode, remain editable.
     """
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
