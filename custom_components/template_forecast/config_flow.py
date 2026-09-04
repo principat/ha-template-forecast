@@ -38,6 +38,25 @@ from .const import (
 _NONE_OPTION = selector.SelectOptionDict(value="", label="—")
 
 
+class _LenientTemplateSelector(selector.TemplateSelector):
+    """Renders like TemplateSelector but doesn't reject invalid syntax itself.
+
+    The stock TemplateSelector validates the Jinja syntax as part of the
+    voluptuous schema. Home Assistant's HTTP layer for config flows
+    (``FlowManagerResourceView.post``) does catch that as an ``InvalidData``
+    error and turns it into a per-field error, so it's not fatal in the UI -
+    but it's a generic, untranslated message, and it bypasses our own
+    ``errors`` dict (so it doesn't use the localized ``invalid_template``
+    string). It's also fatal when a flow is driven directly, as our tests do
+    via ``hass.config_entries.flow.async_configure()``, which skips that HTTP
+    catch entirely. Syntax is checked separately by ``_validate_templates``
+    so both paths get a consistent, localized error.
+    """
+
+    def __call__(self, data: Any) -> str:
+        return str(data)
+
+
 def _device_class_selector() -> selector.SelectSelector:
     options = [_NONE_OPTION] + [
         selector.SelectOptionDict(value=c.value, label=c.value)
@@ -67,10 +86,10 @@ def _common_schema(defaults: dict[str, Any]) -> dict:
     return {
         vol.Required(
             CONF_STATE_TEMPLATE, default=defaults.get(CONF_STATE_TEMPLATE, "")
-        ): str,
+        ): _LenientTemplateSelector(),
         vol.Required(
             CONF_ATTRIBUTE_TEMPLATE, default=defaults.get(CONF_ATTRIBUTE_TEMPLATE, "")
-        ): str,
+        ): _LenientTemplateSelector(),
         vol.Optional(
             CONF_TARGET_ATTRIBUTE,
             default=defaults.get(CONF_TARGET_ATTRIBUTE, DEFAULT_TARGET_ATTRIBUTE),
@@ -235,22 +254,23 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> "TemplateForecastOptionsFlow":
-        return TemplateForecastOptionsFlow(config_entry)
+        return TemplateForecastOptionsFlow()
 
 
-class TemplateForecastOptionsFlow(config_entries.OptionsFlow):
+class TemplateForecastOptionsFlow(config_entries.OptionsFlowWithReload):
     """Subsequent editing of an existing helper.
 
     The mode (Generate/Transform) is fixed once created, since it determines
     the underlying calculation logic. All other fields, including the source
     entity in transform mode, remain editable.
+
+    Inheriting from OptionsFlowWithReload means the config entry is
+    automatically reloaded when this flow finishes with changed options, so
+    the integration doesn't need its own update listener for that.
     """
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self._config_entry = config_entry
-
     def _current(self) -> dict[str, Any]:
-        return {**self._config_entry.data, **self._config_entry.options}
+        return {**self.config_entry.data, **self.config_entry.options}
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
