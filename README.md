@@ -25,6 +25,20 @@ pytest
 templates) and the sensor calculation logic (linear ramp, per-item transformation,
 automatic recalculation on source update, empty source).
 
+## Releases
+
+Versioning is automated with [semantic-release](https://semantic-release.gitbook.io/) via
+[.github/workflows/release.yml](.github/workflows/release.yml). On every push to `master`,
+commit messages are analyzed following [Conventional Commits](https://www.conventionalcommits.org/):
+
+- `fix: ...` → patch release
+- `feat: ...` → minor release
+- `feat!: ...` or a `BREAKING CHANGE:` footer → major release
+
+A release run bumps `custom_components/template_forecast/manifest.json`, updates
+`CHANGELOG.md`, tags the commit, and publishes a GitHub Release with generated notes.
+Commits that don't match a release type (e.g. `chore:`, `docs:`) don't trigger a release.
+
 ## Installation
 
 1. Add as a custom repository in HACS (category "Integration"), or copy the
@@ -51,7 +65,7 @@ all other fields (templates, horizon, update interval, target attribute, source)
 - `value` – `item.value`, if present (convenience)
 
 ### State template (both modes)
-- `forecast` – the already computed result list (list of `{time, value}`)
+- `forecast` – the already computed result list (list of `{datetime, value}`)
 - additionally in transform mode: `source` (state of the source entity), `source_forecast`
   (original list before the transformation)
 - all normal Jinja functions (`states()`, `state_attr()`, `now()`, …) are available

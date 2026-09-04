@@ -63,13 +63,7 @@ def _state_class_selector() -> selector.SelectSelector:
 
 
 def _common_schema(defaults: dict[str, Any]) -> dict:
-    """Fields that appear in both modes.
-
-    Templates are deliberately plain strings (not selector.TemplateSelector):
-    the TemplateSelector already validates at the voluptuous schema level and
-    raises a hard exception before async_step_* even runs - that would bypass
-    _validate_templates() and show the user a crash instead of a form error.
-    """
+    """Fields that appear in both modes."""
     return {
         vol.Required(
             CONF_STATE_TEMPLATE, default=defaults.get(CONF_STATE_TEMPLATE, "")
