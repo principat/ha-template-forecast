@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/principat/ha-template-forecast/compare/v1.0.0...v1.1.0) (2026-09-04)
+
+
+### Features
+
+* use template fileds for configuration ([cea0181](https://github.com/principat/ha-template-forecast/commit/cea018195ccd0a786535e6d6f89a482093077dd4))
+
 # 1.0.0 (2026-09-04)
 
 
