@@ -102,6 +102,51 @@ async def test_transform_mode_applies_template_per_item(hass: HomeAssistant) -> 
     assert forecast[0]["datetime"] == "2026-08-20T10:00:00+00:00"
 
 
+async def test_transform_mode_merges_dict_template_result(
+    hass: HomeAssistant,
+) -> None:
+    """If the template returns a dict, its keys are merged into the item."""
+    hass.states.async_set(
+        "sensor.source_forecast",
+        "unknown",
+        {
+            "forecast": [
+                {"datetime": "2026-08-20T10:00:00+00:00", "value": 10},
+                {"datetime": "2026-08-20T11:00:00+00:00", "value": 20},
+            ]
+        },
+    )
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Multi",
+        data={
+            CONF_MODE: MODE_TRANSFORM,
+            CONF_NAME: "Multi",
+            CONF_SOURCE_ENTITY: "sensor.source_forecast",
+            CONF_SOURCE_ATTRIBUTE: "forecast",
+            CONF_STATE_TEMPLATE: "{{ forecast | length }}",
+            CONF_ATTRIBUTE_TEMPLATE: (
+                "{{ {'value': value * 2, 'condition': 'sunny'} }}"
+            ),
+            CONF_TARGET_ATTRIBUTE: "forecast_multi",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.multi")
+    assert state is not None
+
+    forecast = state.attributes["forecast_multi"]
+    assert [f["value"] for f in forecast] == [20, 40]
+    assert [f["condition"] for f in forecast] == ["sunny", "sunny"]
+    # original timestamps remain unchanged
+    assert forecast[0]["datetime"] == "2026-08-20T10:00:00+00:00"
+
+
 async def test_transform_mode_recomputes_on_source_update(hass: HomeAssistant) -> None:
     """When the source entity changes, the forecast helper updates automatically."""
     hass.states.async_set(

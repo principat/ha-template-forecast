@@ -265,7 +265,10 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
                 variables, parse_result=True
             )
             new_item = dict(item)
-            new_item["value"] = value
+            if isinstance(value, dict):
+                new_item.update(value)
+            else:
+                new_item["value"] = value
             forecast_list.append(new_item)
 
         extra_vars = {
