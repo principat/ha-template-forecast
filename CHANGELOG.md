@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/principat/ha-template-forecast/compare/v1.1.0...v1.1.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* allow transform template to set multiple properties via dict result ([a501e64](https://github.com/principat/ha-template-forecast/commit/a501e6442faab7bc77fe36e88b411dcac41f11b2))
+
 # [1.1.0](https://github.com/principat/ha-template-forecast/compare/v1.0.0...v1.1.0) (2026-09-04)
 
 
