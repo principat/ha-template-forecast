@@ -38,7 +38,7 @@
               "state_template_info_generate_content": "Example"
             },
             "data_description": {
-              "state_template_info_generate_content": "Defines the value shown as the sensor's own state. Available: `forecast`, the already computed result list from the attribute template below, e.g. `forecast[0].value`."
+              "state_template_info_generate_content": "Defines the value shown as the sensor's own state.\n\nAvailable:\n- `forecast` – the already computed result list from the attribute template below, e.g. `forecast[0].value`"
             }
           },
           "attribute_template_info_generate": {
@@ -47,7 +47,7 @@
               "attribute_template_info_generate_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_generate_content": "Evaluated once per time step to build the forecast list. Available: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC). To set multiple fields per entry, such as a custom time, return an object instead:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_generate_content": "Evaluated once per time step to build the forecast list.\n\nAvailable:\n- `index` – 0-based step\n- `horizon` – total number of steps\n- `forecast_time` – datetime of this step, UTC\n\nTo set multiple fields per entry, such as a custom time, return an object instead:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
             }
           }
         }
@@ -73,7 +73,7 @@
               "state_template_info_transform_content": "Example"
             },
             "data_description": {
-              "state_template_info_transform_content": "Defines the value shown as the sensor's own state. Available: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation)."
+              "state_template_info_transform_content": "Defines the value shown as the sensor's own state.\n\nAvailable:\n- `forecast` – already computed result list\n- `source` – state of the source entity\n- `source_forecast` – original list before the transformation"
             }
           },
           "attribute_template_info_transform": {
@@ -82,7 +82,7 @@
               "attribute_template_info_transform_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list. Available: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present). To merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nTo merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
             }
           }
         }
@@ -120,7 +120,7 @@
               "state_template_info_generate_content": "Example"
             },
             "data_description": {
-              "state_template_info_generate_content": "Defines the value shown as the sensor's own state. Available: `forecast`, the already computed result list from the attribute template below, e.g. `forecast[0].value`."
+              "state_template_info_generate_content": "Defines the value shown as the sensor's own state.\n\nAvailable:\n- `forecast` – the already computed result list from the attribute template below, e.g. `forecast[0].value`"
             }
           },
           "attribute_template_info_generate": {
@@ -129,7 +129,7 @@
               "attribute_template_info_generate_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_generate_content": "Evaluated once per time step to build the forecast list. Available: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC). To set multiple fields per entry, such as a custom time, return an object instead:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_generate_content": "Evaluated once per time step to build the forecast list.\n\nAvailable:\n- `index` – 0-based step\n- `horizon` – total number of steps\n- `forecast_time` – datetime of this step, UTC\n\nTo set multiple fields per entry, such as a custom time, return an object instead:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
             }
           },
           "state_template_info_transform": {
@@ -138,7 +138,7 @@
               "state_template_info_transform_content": "Example"
             },
             "data_description": {
-              "state_template_info_transform_content": "Defines the value shown as the sensor's own state. Available: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation)."
+              "state_template_info_transform_content": "Defines the value shown as the sensor's own state.\n\nAvailable:\n- `forecast` – already computed result list\n- `source` – state of the source entity\n- `source_forecast` – original list before the transformation"
             }
           },
           "attribute_template_info_transform": {
@@ -147,7 +147,7 @@
               "attribute_template_info_transform_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list. Available: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present). To merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nTo merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
             }
           }
         }

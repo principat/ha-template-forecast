@@ -120,15 +120,18 @@ def test_generate_mode_info_sections_render_as_clean_plain_text(page):
         for i in range(2)
     ]
 
-    assert any("Available: forecast" in t for t in helper_texts), helper_texts
+    assert any("Available:" in t for t in helper_texts), helper_texts
+    assert any("forecast" in t for t in helper_texts), helper_texts
     for substring in EXPECTED_ATTRIBUTE_HELPER_GENERATE_SUBSTRINGS:
         assert any(substring in t for t in helper_texts), (substring, helper_texts)
 
     # Real markdown rendering means inline code became actual <code>
-    # elements - the def8409 bug left literal backticks in the plain text
-    # instead.
+    # elements (the def8409 bug left literal backticks in the plain text
+    # instead), and the "Available: ..." parameters became an actual <ul>
+    # list instead of being buried in flowing prose.
     for i in range(2):
         assert markdown_blocks.nth(i).locator("code").count() > 0
+        assert markdown_blocks.nth(i).locator("ul li").count() > 0
     for text in helper_texts:
         assert "`" not in text, text
         assert "```" not in text, text
