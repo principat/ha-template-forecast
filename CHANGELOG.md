@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/principat/ha-template-forecast/compare/v1.1.2...v1.2.0) (2026-09-17)
+
+
+### Features
+
+* validate templates with a test render in the config/options flow ([773cca0](https://github.com/principat/ha-template-forecast/commit/773cca0f24770acf07657c159a1b23293c1f3fd4))
+
 ## [1.1.2](https://github.com/principat/ha-template-forecast/compare/v1.1.1...v1.1.2) (2026-09-17)
 
 
