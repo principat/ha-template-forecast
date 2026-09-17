@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/principat/ha-template-forecast/compare/v1.2.0...v1.3.0) (2026-09-17)
+
+
+### Features
+
+* add collapsed info sections with variable docs and examples per template ([e781c30](https://github.com/principat/ha-template-forecast/commit/e781c30245bc338fcbc3f5172970a8e2aecae720))
+
 # [1.2.0](https://github.com/principat/ha-template-forecast/compare/v1.1.2...v1.2.0) (2026-09-17)
 
 
