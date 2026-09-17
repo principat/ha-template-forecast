@@ -34,11 +34,11 @@
         "sections": {
           "state_template_info_generate": {
             "name": "Info & examples",
-            "description": "Defines the value shown as the sensor's own state.\n\nAvailable: `forecast` – the already computed result list from the attribute template below (e.g. `forecast[0].value`).\n\nExample:\n```\n'{{ forecast[0].value }}'\n```"
+            "description": "Defines the value shown as the sensor's own state. Available: forecast, the already computed result list from the attribute template below, e.g. forecast[0].value. Example: '{{ forecast[0].value }}'"
           },
           "attribute_template_info_generate": {
             "name": "Info & examples",
-            "description": "Evaluated once per time step to build the forecast list.\n\nAvailable: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC).\n\nSimple value:\n```\n'{{ (10 + (20 - 10) * index / horizon) | round(2) }}'\n```\n\nObject (sets multiple fields per forecast entry, e.g. a custom `time`):\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+            "description": "Evaluated once per time step to build the forecast list. Available: index (0-based step), horizon (total number of steps), forecast_time (datetime of this step, UTC). Simple value example: '{{ (10 + (20 - 10) * index / horizon) | round(2) }}'. To set multiple fields per entry, such as a custom time, return an object instead: '{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'"
           }
         }
       },
@@ -59,11 +59,11 @@
         "sections": {
           "state_template_info_transform": {
             "name": "Info & examples",
-            "description": "Defines the value shown as the sensor's own state.\n\nAvailable: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation).\n\nExample:\n```\n'{{ source }}'\n```"
+            "description": "Defines the value shown as the sensor's own state. Available: forecast (already computed result list), source (state of the source entity), source_forecast (original list before the transformation). Example: '{{ source }}'"
           },
           "attribute_template_info_transform": {
             "name": "Info & examples",
-            "description": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present).\n\nSimple value:\n```\n'{{ value * 2 }}'\n```\n\nObject (merges extra fields into the item, e.g. adds a condition alongside the doubled value):\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+            "description": "Evaluated once per item of the source list, to build the new forecast list. Available: index (position in the source list), item (the complete original element from the source list), value (item.value, if present). Simple value example: '{{ value * 2 }}'. To merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead: '{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'"
           }
         }
       }
@@ -96,19 +96,19 @@
         "sections": {
           "state_template_info_generate": {
             "name": "Info & examples",
-            "description": "Defines the value shown as the sensor's own state.\n\nAvailable: `forecast` – the already computed result list from the attribute template below (e.g. `forecast[0].value`).\n\nExample:\n```\n'{{ forecast[0].value }}'\n```"
+            "description": "Defines the value shown as the sensor's own state. Available: forecast, the already computed result list from the attribute template below, e.g. forecast[0].value. Example: '{{ forecast[0].value }}'"
           },
           "attribute_template_info_generate": {
             "name": "Info & examples",
-            "description": "Evaluated once per time step to build the forecast list.\n\nAvailable: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC).\n\nSimple value:\n```\n'{{ (10 + (20 - 10) * index / horizon) | round(2) }}'\n```\n\nObject (sets multiple fields per forecast entry, e.g. a custom `time`):\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+            "description": "Evaluated once per time step to build the forecast list. Available: index (0-based step), horizon (total number of steps), forecast_time (datetime of this step, UTC). Simple value example: '{{ (10 + (20 - 10) * index / horizon) | round(2) }}'. To set multiple fields per entry, such as a custom time, return an object instead: '{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'"
           },
           "state_template_info_transform": {
             "name": "Info & examples",
-            "description": "Defines the value shown as the sensor's own state.\n\nAvailable: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation).\n\nExample:\n```\n'{{ source }}'\n```"
+            "description": "Defines the value shown as the sensor's own state. Available: forecast (already computed result list), source (state of the source entity), source_forecast (original list before the transformation). Example: '{{ source }}'"
           },
           "attribute_template_info_transform": {
             "name": "Info & examples",
-            "description": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present).\n\nSimple value:\n```\n'{{ value * 2 }}'\n```\n\nObject (merges extra fields into the item, e.g. adds a condition alongside the doubled value):\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+            "description": "Evaluated once per item of the source list, to build the new forecast list. Available: index (position in the source list), item (the complete original element from the source list), value (item.value, if present). Simple value example: '{{ value * 2 }}'. To merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead: '{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'"
           }
         }
       }
