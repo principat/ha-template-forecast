@@ -226,16 +226,18 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
                 "forecast_time": forecast_time,
             }
             value = self._attribute_template.async_render(
-                variables, parse_result=False
+                variables, parse_result=True
             )
-            forecast_list.append(
-                {
-                    "datetime": forecast_time.replace(
-                        second=0, microsecond=0
-                    ).isoformat(),
-                    "value": _try_number(value),
-                }
-            )
+            item = {
+                "time": forecast_time.replace(
+                    second=0, microsecond=0
+                ).isoformat(),
+            }
+            if isinstance(value, dict):
+                item.update(value)
+            else:
+                item["value"] = _try_number(value)
+            forecast_list.append(item)
 
         return forecast_list, {}
 

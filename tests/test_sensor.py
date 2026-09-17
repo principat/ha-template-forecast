@@ -56,8 +56,40 @@ async def test_generate_mode_builds_linear_forecast(hass: HomeAssistant) -> None
     # even spacing: step 2 is in the middle
     assert forecast[2]["value"] == 15.0
     # timestamps must be strictly ascending
-    timestamps = [f["datetime"] for f in forecast]
+    timestamps = [f["time"] for f in forecast]
     assert timestamps == sorted(timestamps)
+
+
+async def test_generate_mode_merges_dict_template_result(hass: HomeAssistant) -> None:
+    """If the template returns a dict, its keys are merged into the forecast item."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Multi Generate",
+        data={
+            CONF_MODE: MODE_GENERATE,
+            CONF_NAME: "Multi Generate",
+            CONF_HORIZON_STEPS: 2,
+            CONF_STEP_MINUTES: 60,
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: (
+                "{{ {'value': index * 10, 'condition': 'sunny'} }}"
+            ),
+            CONF_TARGET_ATTRIBUTE: "forecast",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.multi_generate")
+    assert state is not None
+
+    forecast = state.attributes["forecast"]
+    assert [f["value"] for f in forecast] == [0, 10]
+    assert [f["condition"] for f in forecast] == ["sunny", "sunny"]
+    # time keys are still present alongside the merged keys
+    assert "time" in forecast[0]
 
 
 async def test_transform_mode_applies_template_per_item(hass: HomeAssistant) -> None:

@@ -64,13 +64,21 @@ all other fields (templates, horizon, update interval, target attribute, source)
 - `horizon` – total number of steps
 - `forecast_time` – timestamp of this step (datetime, UTC)
 
+The template's return value becomes the forecast entry's `value`, giving
+`{"time": <forecast_time as ISO string>, "value": <rendered result>}` – the
+`"time"` key matches the format HAEO's own forecast sensors expect. If the
+template renders a dict instead of a scalar, its keys are merged into the
+entry (e.g. to add extra fields alongside `time`/`value`).
+
 ### Transform mode, attribute template
 - `index` – position in the source list
 - `item` – the complete original element (dict) from the source attribute
 - `value` – `item.value`, if present (convenience)
 
 ### State template (both modes)
-- `forecast` – the already computed result list (list of `{datetime, value}`)
+- `forecast` – the already computed result list (list of `{time, value}` in
+  generate mode; in transform mode the original item's keys, whatever the
+  source entity used, e.g. `{start_time, value}`)
 - additionally in transform mode: `source` (state of the source entity), `source_forecast`
   (original list before the transformation)
 - all normal Jinja functions (`states()`, `state_attr()`, `now()`, …) are available
