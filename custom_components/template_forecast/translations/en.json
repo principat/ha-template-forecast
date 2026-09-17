@@ -29,6 +29,16 @@
           "state_class": "State class (optional)",
           "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
+        },
+        "sections": {
+          "state_template_info_generate": {
+            "name": "Available variables & example",
+            "description": "Available: `forecast` – the already computed result list from the attribute template below (e.g. `forecast[0].value`).\n\nExample:\n```\n{{ forecast[0].value }}\n```"
+          },
+          "attribute_template_info_generate": {
+            "name": "Available variables & examples",
+            "description": "Available: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC).\n\nSimple value:\n```\n{{ (10 + (20 - 10) * index / horizon) | round(2) }}\n```\n\nObject (sets multiple fields per forecast entry, e.g. a custom `time`):\n```\n{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}\n```"
+          }
         }
       },
       "transform": {
@@ -44,6 +54,16 @@
           "state_class": "State class (optional)",
           "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
+        },
+        "sections": {
+          "state_template_info_transform": {
+            "name": "Available variables & example",
+            "description": "Available: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation).\n\nExample:\n```\n{{ source }}\n```"
+          },
+          "attribute_template_info_transform": {
+            "name": "Available variables & examples",
+            "description": "Available: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present).\n\nSimple value:\n```\n{{ value * 2 }}\n```\n\nObject (merges extra fields into the item, e.g. adds a condition alongside the doubled value):\n```\n{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}\n```"
+          }
         }
       }
     },
@@ -70,6 +90,24 @@
           "state_class": "State class (optional)",
           "icon": "Icon (optional)",
           "update_interval_minutes": "Recalculation interval (minutes)"
+        },
+        "sections": {
+          "state_template_info_generate": {
+            "name": "Available variables & example",
+            "description": "Available: `forecast` – the already computed result list from the attribute template below (e.g. `forecast[0].value`).\n\nExample:\n```\n{{ forecast[0].value }}\n```"
+          },
+          "attribute_template_info_generate": {
+            "name": "Available variables & examples",
+            "description": "Available: `index` (0-based step), `horizon` (total number of steps), `forecast_time` (datetime of this step, UTC).\n\nSimple value:\n```\n{{ (10 + (20 - 10) * index / horizon) | round(2) }}\n```\n\nObject (sets multiple fields per forecast entry, e.g. a custom `time`):\n```\n{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}\n```"
+          },
+          "state_template_info_transform": {
+            "name": "Available variables & example",
+            "description": "Available: `forecast` (already computed result list), `source` (state of the source entity), `source_forecast` (original list before the transformation).\n\nExample:\n```\n{{ source }}\n```"
+          },
+          "attribute_template_info_transform": {
+            "name": "Available variables & examples",
+            "description": "Available: `index` (position in the source list), `item` (the complete original element from the source list), `value` (`item.value`, if present).\n\nSimple value:\n```\n{{ value * 2 }}\n```\n\nObject (merges extra fields into the item, e.g. adds a condition alongside the doubled value):\n```\n{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}\n```"
+          }
         }
       }
     },

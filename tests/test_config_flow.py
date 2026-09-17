@@ -53,6 +53,26 @@ async def test_generate_flow_creates_entry(hass: HomeAssistant) -> None:
     assert data[CONF_MODE] == MODE_GENERATE
     assert data[CONF_HORIZON_STEPS] == 4
     assert data[CONF_ATTRIBUTE_TEMPLATE] == "{{ index * 2 }}"
+    # the collapsed info/example sections are UI-only and must not be persisted
+    assert not any(key.startswith("state_template_info_") for key in data)
+    assert not any(key.startswith("attribute_template_info_") for key in data)
+
+
+async def test_generate_form_shows_collapsed_info_sections(
+    hass: HomeAssistant,
+) -> None:
+    """The generate step's form offers a collapsed info section per template."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_NAME: "Price Forecast", CONF_MODE: MODE_GENERATE},
+    )
+
+    schema_keys = {str(key) for key in result["data_schema"].schema}
+    assert "state_template_info_generate" in schema_keys
+    assert "attribute_template_info_generate" in schema_keys
 
 
 async def test_transform_flow_creates_entry(hass: HomeAssistant) -> None:

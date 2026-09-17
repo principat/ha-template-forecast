@@ -9,6 +9,7 @@ from homeassistant import config_entries
 from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import SectionConfig, section
 from homeassistant.helpers import selector
 from homeassistant.helpers.template import Template
 import homeassistant.util.dt as dt_util
@@ -82,12 +83,40 @@ def _state_class_selector() -> selector.SelectSelector:
     )
 
 
-def _common_schema(defaults: dict[str, Any]) -> dict:
+def _info_section_key(field: str, mode: str) -> str:
+    """Key for the collapsed info/example section shown above a template field."""
+    return f"{field}_info_{mode}"
+
+
+def _info_section() -> section:
+    """An empty, collapsed section used only to display its description text."""
+    return section(vol.Schema({}), SectionConfig(collapsed=True))
+
+
+_INFO_SECTION_PREFIXES = ("state_template_info_", "attribute_template_info_")
+
+
+def strip_info_sections(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Drop the empty info-section placeholders before validating/persisting."""
+    return {
+        key: value
+        for key, value in user_input.items()
+        if not key.startswith(_INFO_SECTION_PREFIXES)
+    }
+
+
+def _common_schema(defaults: dict[str, Any], mode: str) -> dict:
     """Fields that appear in both modes."""
     return {
+        vol.Optional(
+            _info_section_key(CONF_STATE_TEMPLATE, mode), default={}
+        ): _info_section(),
         vol.Required(
             CONF_STATE_TEMPLATE, default=defaults.get(CONF_STATE_TEMPLATE, "")
         ): _LenientTemplateSelector(),
+        vol.Optional(
+            _info_section_key(CONF_ATTRIBUTE_TEMPLATE, mode), default={}
+        ): _info_section(),
         vol.Required(
             CONF_ATTRIBUTE_TEMPLATE, default=defaults.get(CONF_ATTRIBUTE_TEMPLATE, "")
         ): _LenientTemplateSelector(),
@@ -129,7 +158,7 @@ def _generate_schema(defaults: dict[str, Any]) -> vol.Schema:
             default=defaults.get(CONF_STEP_MINUTES, DEFAULT_STEP_MINUTES),
         ): vol.All(vol.Coerce(int), vol.Range(min=1)),
     }
-    fields.update(_common_schema(defaults))
+    fields.update(_common_schema(defaults, MODE_GENERATE))
     return vol.Schema(fields)
 
 
@@ -140,7 +169,7 @@ def _transform_schema(defaults: dict[str, Any]) -> vol.Schema:
             default=defaults.get(CONF_SOURCE_ATTRIBUTE, ""),
         ): str,
     }
-    fields.update(_common_schema(defaults))
+    fields.update(_common_schema(defaults, MODE_TRANSFORM))
     return vol.Schema(fields)
 
 
@@ -272,6 +301,7 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         placeholders: dict[str, str] = {}
         if user_input is not None:
+            user_input = strip_info_sections(user_input)
             errors, placeholders = _validate_templates(
                 self.hass, user_input, MODE_GENERATE
             )
@@ -292,6 +322,7 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         placeholders: dict[str, str] = {}
         if user_input is not None:
+            user_input = strip_info_sections(user_input)
             errors, placeholders = _validate_templates(
                 self.hass, user_input, MODE_TRANSFORM
             )
@@ -346,6 +377,7 @@ class TemplateForecastOptionsFlow(config_entries.OptionsFlowWithReload):
         placeholders: dict[str, str] = {}
 
         if user_input is not None:
+            user_input = strip_info_sections(user_input)
             errors, placeholders = _validate_templates(self.hass, user_input, mode)
             if not errors:
                 return self.async_create_entry(title="", data=user_input)
