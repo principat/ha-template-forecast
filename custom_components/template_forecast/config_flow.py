@@ -11,6 +11,7 @@ from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.helpers.template import Template
+import homeassistant.util.dt as dt_util
 
 from .const import (
     CONF_ATTRIBUTE_TEMPLATE,
@@ -143,19 +144,73 @@ def _transform_schema(defaults: dict[str, Any]) -> vol.Schema:
     return vol.Schema(fields)
 
 
-def _validate_templates(hass, user_input: dict[str, Any]) -> dict[str, str]:
-    """Check templates syntactically, without knowing the actual variables."""
+def _validate_templates(
+    hass, user_input: dict[str, Any], mode: str
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Check templates syntactically, then with a representative test render.
+
+    The syntax check alone can't catch a template that references a variable
+    only available in the other mode (e.g. ``item`` in generate mode) - that
+    only surfaces once Jinja actually evaluates it. So after the syntax
+    check passes, each template is rendered once with the same shape of
+    variables the sensor provides at runtime, and any render failure is
+    reported on that field instead of failing silently later.
+
+    Returns (errors, description_placeholders).
+    """
     errors: dict[str, str] = {}
-    for key in (CONF_STATE_TEMPLATE, CONF_ATTRIBUTE_TEMPLATE):
-        value = user_input.get(key, "")
+    placeholders: dict[str, str] = {}
+
+    state_template_value = user_input.get(CONF_STATE_TEMPLATE, "")
+    attribute_template_value = user_input.get(CONF_ATTRIBUTE_TEMPLATE, "")
+
+    for key, value in (
+        (CONF_STATE_TEMPLATE, state_template_value),
+        (CONF_ATTRIBUTE_TEMPLATE, attribute_template_value),
+    ):
         if not value:
             continue
-        template = Template(value, hass)
         try:
-            template.ensure_valid()
+            Template(value, hass).ensure_valid()
         except Exception:  # noqa: BLE001
             errors[key] = "invalid_template"
-    return errors
+
+    if errors:
+        return errors, placeholders
+
+    if attribute_template_value:
+        if mode == MODE_TRANSFORM:
+            attribute_variables = {"index": 0, "item": {"value": 0}, "value": 0}
+        else:
+            horizon_steps = user_input.get(CONF_HORIZON_STEPS, DEFAULT_HORIZON_STEPS)
+            attribute_variables = {
+                "index": 0,
+                "horizon": horizon_steps,
+                "forecast_time": dt_util.utcnow(),
+            }
+        try:
+            Template(attribute_template_value, hass).async_render(
+                attribute_variables, parse_result=True
+            )
+        except Exception as err:  # noqa: BLE001
+            errors[CONF_ATTRIBUTE_TEMPLATE] = "attribute_template_render_error"
+            placeholders["attribute_template_error"] = str(err)
+
+    if state_template_value:
+        dummy_item = {"time": dt_util.utcnow().isoformat(), "value": 0}
+        state_variables: dict[str, Any] = {"forecast": [dummy_item]}
+        if mode == MODE_TRANSFORM:
+            state_variables["source"] = None
+            state_variables["source_forecast"] = [dummy_item]
+        try:
+            Template(state_template_value, hass).async_render(
+                state_variables, parse_result=False
+            )
+        except Exception as err:  # noqa: BLE001
+            errors[CONF_STATE_TEMPLATE] = "state_template_render_error"
+            placeholders["state_template_error"] = str(err)
+
+    return errors, placeholders
 
 
 class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -215,8 +270,11 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
         errors: dict[str, str] = {}
+        placeholders: dict[str, str] = {}
         if user_input is not None:
-            errors = _validate_templates(self.hass, user_input)
+            errors, placeholders = _validate_templates(
+                self.hass, user_input, MODE_GENERATE
+            )
             if not errors:
                 data = {CONF_MODE: MODE_GENERATE, CONF_NAME: self._name, **user_input}
                 return self.async_create_entry(title=self._name, data=data)
@@ -225,14 +283,18 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="generate",
             data_schema=_generate_schema(user_input or {}),
             errors=errors,
+            description_placeholders=placeholders,
         )
 
     async def async_step_transform(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
         errors: dict[str, str] = {}
+        placeholders: dict[str, str] = {}
         if user_input is not None:
-            errors = _validate_templates(self.hass, user_input)
+            errors, placeholders = _validate_templates(
+                self.hass, user_input, MODE_TRANSFORM
+            )
             if not errors:
                 data = {
                     CONF_MODE: MODE_TRANSFORM,
@@ -246,7 +308,10 @@ class TemplateForecastConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="transform",
             data_schema=_transform_schema(user_input or {}),
             errors=errors,
-            description_placeholders={"source_entity": self._source_entity or ""},
+            description_placeholders={
+                "source_entity": self._source_entity or "",
+                **placeholders,
+            },
         )
 
     @staticmethod
@@ -278,9 +343,10 @@ class TemplateForecastOptionsFlow(config_entries.OptionsFlowWithReload):
         current = self._current()
         mode = current.get(CONF_MODE, MODE_GENERATE)
         errors: dict[str, str] = {}
+        placeholders: dict[str, str] = {}
 
         if user_input is not None:
-            errors = _validate_templates(self.hass, user_input)
+            errors, placeholders = _validate_templates(self.hass, user_input, mode)
             if not errors:
                 return self.async_create_entry(title="", data=user_input)
 
@@ -296,5 +362,8 @@ class TemplateForecastOptionsFlow(config_entries.OptionsFlowWithReload):
             schema = _generate_schema(user_input or current)
 
         return self.async_show_form(
-            step_id="init", data_schema=schema, errors=errors
+            step_id="init",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders=placeholders,
         )

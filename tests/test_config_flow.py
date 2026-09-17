@@ -115,6 +115,39 @@ async def test_generate_flow_rejects_invalid_template(hass: HomeAssistant) -> No
     assert result["errors"][CONF_STATE_TEMPLATE] == "invalid_template"
 
 
+async def test_generate_flow_rejects_template_that_fails_on_render(
+    hass: HomeAssistant,
+) -> None:
+    """A template that is valid Jinja but fails once actually rendered.
+
+    ``item`` only exists in transform mode; referencing it in generate mode
+    is syntactically fine but blows up at render time - this must be caught
+    before the entry is created, not just logged later at runtime.
+    """
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_NAME: "Broken Render", CONF_MODE: MODE_GENERATE},
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_HORIZON_STEPS: 4,
+            CONF_STEP_MINUTES: 60,
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: "{{ item.start_time | length }}",
+            CONF_TARGET_ATTRIBUTE: "forecast",
+        },
+    )
+
+    assert result["type"] == FlowResultType.FORM
+    assert result["errors"][CONF_ATTRIBUTE_TEMPLATE] == "attribute_template_render_error"
+    assert result["description_placeholders"]["attribute_template_error"]
+
+
 async def test_options_flow_updates_existing_entry(hass: HomeAssistant) -> None:
     """An existing helper can be edited via the options flow."""
     result = await hass.config_entries.flow.async_init(

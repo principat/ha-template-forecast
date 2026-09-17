@@ -48,7 +48,9 @@
       }
     },
     "error": {
-      "invalid_template": "Template is not valid."
+      "invalid_template": "Template is not valid.",
+      "attribute_template_render_error": "Attribute template failed on a test render: {attribute_template_error}",
+      "state_template_render_error": "State template failed on a test render: {state_template_error}"
     }
   },
   "options": {
@@ -72,7 +74,9 @@
       }
     },
     "error": {
-      "invalid_template": "Template is not valid."
+      "invalid_template": "Template is not valid.",
+      "attribute_template_render_error": "Attribute template failed on a test render: {attribute_template_error}",
+      "state_template_render_error": "State template failed on a test render: {state_template_error}"
     }
   }
 }

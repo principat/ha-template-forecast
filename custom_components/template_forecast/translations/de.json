@@ -48,7 +48,9 @@
       }
     },
     "error": {
-      "invalid_template": "Template ist ungültig."
+      "invalid_template": "Template ist ungültig.",
+      "attribute_template_render_error": "Attribut-Template ist bei einem Test-Rendering fehlgeschlagen: {attribute_template_error}",
+      "state_template_render_error": "State-Template ist bei einem Test-Rendering fehlgeschlagen: {state_template_error}"
     }
   },
   "options": {
@@ -72,7 +74,9 @@
       }
     },
     "error": {
-      "invalid_template": "Template ist ungültig."
+      "invalid_template": "Template ist ungültig.",
+      "attribute_template_render_error": "Attribut-Template ist bei einem Test-Rendering fehlgeschlagen: {attribute_template_error}",
+      "state_template_render_error": "State-Template ist bei einem Test-Rendering fehlgeschlagen: {state_template_error}"
     }
   }
 }
