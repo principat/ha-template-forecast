@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/principat/ha-template-forecast/compare/v1.4.0...v1.4.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* structure info & examples parameters as a markdown list ([70665af](https://github.com/principat/ha-template-forecast/commit/70665afdbc74443404d9cbaf26767eecf5bb6c69))
+
 # [1.4.0](https://github.com/principat/ha-template-forecast/compare/v1.3.2...v1.4.0) (2026-09-17)
 
 
