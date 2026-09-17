@@ -23,9 +23,58 @@ pip install -r requirements_test.txt
 pytest
 ```
 
-8 tests cover the config flow (generate/transform/options, including rejection of invalid
-templates) and the sensor calculation logic (linear ramp, per-item transformation,
-automatic recalculation on source update, empty source).
+This runs entirely in-process against a mocked Home Assistant core
+([pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)) -
+no real HA install, no restart, no manual click-through needed to check a change.
+
+- `tests/test_config_flow.py` / `tests/test_sensor.py`: the config/options flow
+  (generate/transform, rejection of invalid or failing templates) and the
+  sensor calculation logic (linear ramp, per-item transformation, automatic
+  recalculation on source update, empty source).
+- `tests/test_translations.py`: catches config flow *UI* regressions that the
+  flow logic tests above can't see - malformed ICU MessageFormat syntax
+  (unescaped braces in a Jinja/dict example breaking the whole string),
+  markdown showing up as literal characters (the section description widget
+  renders plain text, not markdown), `en`/`de` translations drifting out of
+  sync, and translation keys referenced by `config_flow.py` that don't exist.
+  It also loads the strings through HA's real translation loader, the same
+  path the frontend uses.
+
+[.github/workflows/test.yml](.github/workflows/test.yml) runs the suite on every pull
+request, and [.github/workflows/release.yml](.github/workflows/release.yml) runs it
+again as a gate before any release job.
+
+## E2E UI tests (real Home Assistant, real browser)
+
+`tests/test_translations.py` checks that the config-flow strings are
+well-formed; it doesn't see how they actually render. `tests_e2e/` closes
+that gap: it boots a real, throwaway `hass` instance (with the real
+`home-assistant-frontend` static assets, not a mock) and drives the actual
+config flow with headless Chromium via [Playwright](https://playwright.dev/python/).
+It automates the same install → restart → click-through-the-flow loop you'd
+otherwise do by hand, so a future change to `strings.json` or `config_flow.py`
+gets checked the same way before you ever open a browser yourself.
+
+```bash
+pip install -r requirements_e2e.txt
+python -m playwright install --with-deps chromium  # once, downloads Chromium
+pytest tests_e2e
+```
+
+It onboards a fresh instance once per session, then drives both the
+Generate and Transform config-flow paths, expanding every collapsed "Info &
+examples" section and asserting the *rendered* text - not just the source
+JSON - matches exactly, with no leftover markdown or JS console errors.
+Screenshots of each state are written to `tests_e2e/screenshots/` for a
+quick visual look without opening a browser at all.
+
+This suite is intentionally kept separate from `tests/` (its own
+`pytest.ini`, disabling the `tests/` suite's HA-mock and socket-blocking
+plugins) since it needs the extra `home-assistant-frontend`/Playwright
+dependencies and a Chromium download, and a full boot-and-onboard cycle
+takes longer than the mocked unit tests. It isn't part of the release gate;
+[.github/workflows/test-e2e.yml](.github/workflows/test-e2e.yml) runs it on
+every pull request and uploads the screenshots as a build artifact.
 
 ## Releases
 

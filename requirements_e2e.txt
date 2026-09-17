@@ -1,0 +1,4 @@
+-r requirements_test.txt
+home-assistant-frontend==20260826.7
+playwright==1.63.0
+pytest-playwright
