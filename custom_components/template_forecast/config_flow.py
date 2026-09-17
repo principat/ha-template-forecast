@@ -88,9 +88,33 @@ def _info_section_key(field: str, mode: str) -> str:
     return f"{field}_info_{mode}"
 
 
-def _info_section() -> section:
-    """An empty, collapsed section used only to display its description text."""
-    return section(vol.Schema({}), SectionConfig(collapsed=True))
+def _info_content_key(field: str, mode: str) -> str:
+    """Key for the read-only example field nested inside the info section.
+
+    A section's own name/description always render as plain text - but an
+    ordinary field's data_description renders through ha-markdown, and a
+    TemplateSelector with read_only=True shows its default value in a real
+    (non-editable) Jinja code editor. Together that gives a proper
+    syntax-highlighted example plus formatted docs inside a collapsed panel,
+    without adding an actual editable field: the frontend excludes
+    read_only fields from what it submits, and strip_info_sections() (below)
+    drops the whole section - including this field - as a second guarantee
+    for callers that bypass the frontend (e.g. our own tests).
+    """
+    return f"{_info_section_key(field, mode)}_content"
+
+
+def _info_section(field: str, mode: str, example: str) -> section:
+    """A collapsed section showing a read-only Jinja example plus markdown docs."""
+    content_key = _info_content_key(field, mode)
+    schema = vol.Schema(
+        {
+            vol.Optional(content_key, default=example): selector.TemplateSelector(
+                {"read_only": True}
+            ),
+        }
+    )
+    return section(schema, SectionConfig(collapsed=True))
 
 
 _INFO_SECTION_PREFIXES = ("state_template_info_", "attribute_template_info_")
@@ -105,18 +129,32 @@ def strip_info_sections(user_input: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_STATE_TEMPLATE_EXAMPLES = {
+    MODE_GENERATE: "{{ forecast[0].value }}",
+    MODE_TRANSFORM: "{{ source }}",
+}
+_ATTRIBUTE_TEMPLATE_EXAMPLES = {
+    MODE_GENERATE: "{{ (10 + (20 - 10) * index / horizon) | round(2) }}",
+    MODE_TRANSFORM: "{{ value * 2 }}",
+}
+
+
 def _common_schema(defaults: dict[str, Any], mode: str) -> dict:
     """Fields that appear in both modes."""
     return {
         vol.Optional(
             _info_section_key(CONF_STATE_TEMPLATE, mode), default={}
-        ): _info_section(),
+        ): _info_section(
+            CONF_STATE_TEMPLATE, mode, _STATE_TEMPLATE_EXAMPLES[mode]
+        ),
         vol.Required(
             CONF_STATE_TEMPLATE, default=defaults.get(CONF_STATE_TEMPLATE, "")
         ): _LenientTemplateSelector(),
         vol.Optional(
             _info_section_key(CONF_ATTRIBUTE_TEMPLATE, mode), default={}
-        ): _info_section(),
+        ): _info_section(
+            CONF_ATTRIBUTE_TEMPLATE, mode, _ATTRIBUTE_TEMPLATE_EXAMPLES[mode]
+        ),
         vol.Required(
             CONF_ATTRIBUTE_TEMPLATE, default=defaults.get(CONF_ATTRIBUTE_TEMPLATE, "")
         ): _LenientTemplateSelector(),

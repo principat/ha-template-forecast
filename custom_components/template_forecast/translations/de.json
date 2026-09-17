@@ -34,11 +34,21 @@
         "sections": {
           "state_template_info_generate": {
             "name": "Info & Beispiele",
-            "description": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: forecast, die bereits berechnete Ergebnisliste aus dem Attribut-Template unten, z. B. forecast[0].value. Beispiel: '{{ forecast[0].value }}'"
+            "data": {
+              "state_template_info_generate_content": "Beispiel"
+            },
+            "data_description": {
+              "state_template_info_generate_content": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: `forecast`, die bereits berechnete Ergebnisliste aus dem Attribut-Template unten, z. B. `forecast[0].value`."
+            }
           },
           "attribute_template_info_generate": {
             "name": "Info & Beispiele",
-            "description": "Wird einmal pro Zeitschritt ausgewertet und erzeugt die Forecast-Liste. Verfügbar: index (0-basierter Schritt), horizon (Gesamtzahl Schritte), forecast_time (Zeitpunkt dieses Schritts, UTC). Beispiel für einen einfachen Wert: '{{ (10 + (20 - 10) * index / horizon) | round(2) }}'. Um mehrere Felder pro Eintrag zu setzen, z. B. eine eigene Zeit, stattdessen ein Objekt zurückgeben: '{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'"
+            "data": {
+              "attribute_template_info_generate_content": "Beispiel"
+            },
+            "data_description": {
+              "attribute_template_info_generate_content": "Wird einmal pro Zeitschritt ausgewertet und erzeugt die Forecast-Liste. Verfügbar: `index` (0-basierter Schritt), `horizon` (Gesamtzahl Schritte), `forecast_time` (Zeitpunkt dieses Schritts, UTC). Um mehrere Felder pro Eintrag zu setzen, z. B. eine eigene Zeit, stattdessen ein Objekt zurückgeben:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+            }
           }
         }
       },
@@ -59,11 +69,21 @@
         "sections": {
           "state_template_info_transform": {
             "name": "Info & Beispiele",
-            "description": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: forecast (bereits berechnete Ergebnisliste), source (State der Quell-Entität), source_forecast (Original-Liste vor der Transformation). Beispiel: '{{ source }}'"
+            "data": {
+              "state_template_info_transform_content": "Beispiel"
+            },
+            "data_description": {
+              "state_template_info_transform_content": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: `forecast` (bereits berechnete Ergebnisliste), `source` (State der Quell-Entität), `source_forecast` (Original-Liste vor der Transformation)."
+            }
           },
           "attribute_template_info_transform": {
             "name": "Info & Beispiele",
-            "description": "Wird einmal pro Element der Quell-Liste ausgewertet und erzeugt daraus die neue Forecast-Liste. Verfügbar: index (Position in der Quellliste), item (das komplette Original-Element aus der Quellliste), value (item.value, falls vorhanden). Beispiel für einen einfachen Wert: '{{ value * 2 }}'. Um zusätzliche Felder ins Element zu mischen, z. B. eine Bedingung neben dem verdoppelten Wert, stattdessen ein Objekt zurückgeben: '{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'"
+            "data": {
+              "attribute_template_info_transform_content": "Beispiel"
+            },
+            "data_description": {
+              "attribute_template_info_transform_content": "Wird einmal pro Element der Quell-Liste ausgewertet und erzeugt daraus die neue Forecast-Liste. Verfügbar: `index` (Position in der Quellliste), `item` (das komplette Original-Element aus der Quellliste), `value` (`item.value`, falls vorhanden). Um zusätzliche Felder ins Element zu mischen, z. B. eine Bedingung neben dem verdoppelten Wert, stattdessen ein Objekt zurückgeben:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+            }
           }
         }
       }
@@ -96,19 +116,39 @@
         "sections": {
           "state_template_info_generate": {
             "name": "Info & Beispiele",
-            "description": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: forecast, die bereits berechnete Ergebnisliste aus dem Attribut-Template unten, z. B. forecast[0].value. Beispiel: '{{ forecast[0].value }}'"
+            "data": {
+              "state_template_info_generate_content": "Beispiel"
+            },
+            "data_description": {
+              "state_template_info_generate_content": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: `forecast`, die bereits berechnete Ergebnisliste aus dem Attribut-Template unten, z. B. `forecast[0].value`."
+            }
           },
           "attribute_template_info_generate": {
             "name": "Info & Beispiele",
-            "description": "Wird einmal pro Zeitschritt ausgewertet und erzeugt die Forecast-Liste. Verfügbar: index (0-basierter Schritt), horizon (Gesamtzahl Schritte), forecast_time (Zeitpunkt dieses Schritts, UTC). Beispiel für einen einfachen Wert: '{{ (10 + (20 - 10) * index / horizon) | round(2) }}'. Um mehrere Felder pro Eintrag zu setzen, z. B. eine eigene Zeit, stattdessen ein Objekt zurückgeben: '{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'"
+            "data": {
+              "attribute_template_info_generate_content": "Beispiel"
+            },
+            "data_description": {
+              "attribute_template_info_generate_content": "Wird einmal pro Zeitschritt ausgewertet und erzeugt die Forecast-Liste. Verfügbar: `index` (0-basierter Schritt), `horizon` (Gesamtzahl Schritte), `forecast_time` (Zeitpunkt dieses Schritts, UTC). Um mehrere Felder pro Eintrag zu setzen, z. B. eine eigene Zeit, stattdessen ein Objekt zurückgeben:\n```\n'{{ {\"time\": forecast_time.isoformat(), \"value\": 10 + index, \"condition\": \"sunny\"} }}'\n```"
+            }
           },
           "state_template_info_transform": {
             "name": "Info & Beispiele",
-            "description": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: forecast (bereits berechnete Ergebnisliste), source (State der Quell-Entität), source_forecast (Original-Liste vor der Transformation). Beispiel: '{{ source }}'"
+            "data": {
+              "state_template_info_transform_content": "Beispiel"
+            },
+            "data_description": {
+              "state_template_info_transform_content": "Legt fest, welchen Wert die Sensor-Entität selbst (der Hauptzustand) anzeigt. Verfügbar: `forecast` (bereits berechnete Ergebnisliste), `source` (State der Quell-Entität), `source_forecast` (Original-Liste vor der Transformation)."
+            }
           },
           "attribute_template_info_transform": {
             "name": "Info & Beispiele",
-            "description": "Wird einmal pro Element der Quell-Liste ausgewertet und erzeugt daraus die neue Forecast-Liste. Verfügbar: index (Position in der Quellliste), item (das komplette Original-Element aus der Quellliste), value (item.value, falls vorhanden). Beispiel für einen einfachen Wert: '{{ value * 2 }}'. Um zusätzliche Felder ins Element zu mischen, z. B. eine Bedingung neben dem verdoppelten Wert, stattdessen ein Objekt zurückgeben: '{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'"
+            "data": {
+              "attribute_template_info_transform_content": "Beispiel"
+            },
+            "data_description": {
+              "attribute_template_info_transform_content": "Wird einmal pro Element der Quell-Liste ausgewertet und erzeugt daraus die neue Forecast-Liste. Verfügbar: `index` (Position in der Quellliste), `item` (das komplette Original-Element aus der Quellliste), `value` (`item.value`, falls vorhanden). Um zusätzliche Felder ins Element zu mischen, z. B. eine Bedingung neben dem verdoppelten Wert, stattdessen ein Objekt zurückgeben:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+            }
           }
         }
       }

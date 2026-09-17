@@ -207,17 +207,34 @@ def test_icu_message_syntax_is_valid(filename: str) -> None:
             )
 
 
+_SECTION_HEADER_PATH = re.compile(r"\.sections\.[^.]+\.(name|description)$")
+
+
+def _is_section_header_path(path: str) -> bool:
+    """True for a section's own name/description - the only text HA renders as
+    plain text with no markdown support at all (ha-form-expandable interpolates
+    the description into a bare `<p>`, never through `ha-markdown`). Everything
+    else - step descriptions and any field's `data_description` (including one
+    nested inside a section, via the generic field-helper renderer) - does go
+    through `ha-markdown` and is free to use backticks/code-fences/bold.
+    """
+    return bool(_SECTION_HEADER_PATH.search(path))
+
+
 @pytest.mark.parametrize("filename", ["strings.json", "translations/en.json", "translations/de.json"])
-def test_no_markdown_in_any_translation_file(filename: str) -> None:
+def test_no_markdown_in_section_headers(filename: str) -> None:
     """Regression guard for def8409 ("rewrite section descriptions as plain text").
 
-    The config flow frontend does not run a markdown renderer over
-    descriptions - **bold**, `code`, headings and bullet lists show up as
-    literal punctuation, not formatting.
+    Scoped to a section's own name/description - the one place HA never
+    runs a markdown renderer (see `_is_section_header_path`). **bold**,
+    `code`, headings and bullet lists would show up there as literal
+    punctuation, not formatting. Everything else (step descriptions, any
+    field's data_description) legitimately uses markdown and is exempt.
     """
     data = _load_json(COMPONENT_DIR / filename)
     for path, text in _walk_strings(data):
-        _assert_no_markdown(f"{filename}:{path}", text)
+        if _is_section_header_path(path):
+            _assert_no_markdown(f"{filename}:{path}", text)
 
 
 async def test_ha_translation_loader_renders_config_flow_strings(
@@ -257,9 +274,16 @@ def test_every_info_section_key_used_by_config_flow_has_a_translation(
 ) -> None:
     """Every "<field>_info_<mode>" section the code can render must have text.
 
-    config_flow.py builds these keys dynamically (_info_section_key); a typo
-    or a renamed mode there would otherwise silently show a section with no
-    name/description in the UI instead of failing a test.
+    config_flow.py builds these keys dynamically (_info_section_key /
+    _info_content_key); a typo or a renamed mode there would otherwise
+    silently show a section with no name, or an empty info panel, instead
+    of failing a test.
+
+    Per the frontend's field-helper renderer (renderShowFormStepFieldLabel/
+    Helper in the config-flow dialog bundle), a field nested inside a
+    section is looked up at ``sections.<section_key>.data``/
+    ``data_description`` - NOT the step's own top-level ``data``/
+    ``data_description`` maps that ordinary (non-nested) fields use.
     """
     from custom_components.template_forecast.const import (
         CONF_ATTRIBUTE_TEMPLATE,
@@ -267,22 +291,45 @@ def test_every_info_section_key_used_by_config_flow_has_a_translation(
         MODE_GENERATE,
         MODE_TRANSFORM,
     )
-    from custom_components.template_forecast.config_flow import _info_section_key
+    from custom_components.template_forecast.config_flow import (
+        _info_content_key,
+        _info_section_key,
+    )
 
-    expected_keys = {
-        _info_section_key(field, mode)
+    expected = {
+        (field, mode)
         for field in (CONF_STATE_TEMPLATE, CONF_ATTRIBUTE_TEMPLATE)
         for mode in (MODE_GENERATE, MODE_TRANSFORM)
     }
 
+    def _assert_section_has_docs(sections: dict[str, Any], section_key: str, content_key: str, where: str) -> None:
+        assert section_key in sections, f"{where}.sections.{section_key} is missing"
+        section = sections[section_key]
+        assert section.get("name")
+        assert section.get("data", {}).get(content_key), (
+            f"{where}.sections.{section_key}.data.{content_key} is missing"
+        )
+        assert section.get("data_description", {}).get(content_key), (
+            f"{where}.sections.{section_key}.data_description.{content_key} is missing"
+        )
+
     for step_id in ("generate", "transform"):
         sections = strings_json["config"]["step"][step_id].get("sections", {})
-        relevant = {key for key in expected_keys if key.endswith(f"_{step_id}")}
-        for key in relevant:
-            assert key in sections, f"config.step.{step_id}.sections.{key} is missing"
-            assert sections[key].get("name")
-            assert sections[key].get("description")
+        for field, mode in expected:
+            if not _info_section_key(field, mode).endswith(f"_{step_id}"):
+                continue
+            _assert_section_has_docs(
+                sections,
+                _info_section_key(field, mode),
+                _info_content_key(field, mode),
+                f"config.step.{step_id}",
+            )
 
     options_sections = strings_json["options"]["step"]["init"].get("sections", {})
-    for key in expected_keys:
-        assert key in options_sections, f"options.step.init.sections.{key} is missing"
+    for field, mode in expected:
+        _assert_section_has_docs(
+            options_sections,
+            _info_section_key(field, mode),
+            _info_content_key(field, mode),
+            "options.step.init",
+        )
