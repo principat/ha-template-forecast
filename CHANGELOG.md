@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/principat/ha-template-forecast/compare/v1.1.1...v1.1.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* use HAEO-compatible time key and support dict results in generate mode ([81f7249](https://github.com/principat/ha-template-forecast/commit/81f72491279092aead43ce42f867ecbd1e47ea43))
+
 ## [1.1.1](https://github.com/principat/ha-template-forecast/compare/v1.1.0...v1.1.1) (2026-09-08)
 
 
