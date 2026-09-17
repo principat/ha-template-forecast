@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/principat/ha-template-forecast/compare/v1.3.1...v1.3.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* rewrite section descriptions as plain text, no markdown ([def8409](https://github.com/principat/ha-template-forecast/commit/def8409b7c6a52a4ad09646eabc16f57c17f8009))
+
 ## [1.3.1](https://github.com/principat/ha-template-forecast/compare/v1.3.0...v1.3.1) (2026-09-17)
 
 
