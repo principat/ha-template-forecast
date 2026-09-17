@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/principat/ha-template-forecast/compare/v1.3.2...v1.4.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ci:** run pytest via python -m so the repo root is on sys.path ([feba811](https://github.com/principat/ha-template-forecast/commit/feba8112ab17edb2c2ca831be8fbc30e1a08f70d))
+
+
+### Features
+
+* render info & examples as a real code box with markdown docs ([adfd9a7](https://github.com/principat/ha-template-forecast/commit/adfd9a79c938afbc8969839f41a575d5408f3f5e))
+
 ## [1.3.2](https://github.com/principat/ha-template-forecast/compare/v1.3.1...v1.3.2) (2026-09-17)
 
 
