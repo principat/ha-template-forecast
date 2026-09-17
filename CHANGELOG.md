@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/principat/ha-template-forecast/compare/v1.3.0...v1.3.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* escape literal braces in info section translations ([f377243](https://github.com/principat/ha-template-forecast/commit/f3772433d9e6b88c5147b9f7b23c7f72f6059713))
+
 # [1.3.0](https://github.com/principat/ha-template-forecast/compare/v1.2.0...v1.3.0) (2026-09-17)
 
 
