@@ -22,7 +22,7 @@ jobs:
         run: python -m playwright install --with-deps chromium
 
       - name: Run e2e UI tests
-        run: pytest tests_e2e
+        run: python -m pytest tests_e2e
 
       - name: Upload screenshots
         if: always()
