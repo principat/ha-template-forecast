@@ -85,6 +85,25 @@ Beide Modi benötigen zwei Templates:
     `source_forecast` (Original-Liste vor der Transformation)
   - alle normalen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, …) sind
     verfügbar.
+  - **Feldreihenfolge im Formular:** Das State-Template erscheint **unterhalb** des
+    Attribut-Templates (nicht davor) – logisch macht das Attribut-Template ohnehin
+    den ersten Schritt aus, der State-Template dann konsumiert.
+  - **Standardwert:** Das Feld wird mit `{{ forecast[0].value }}` vorbelegt (nicht
+    erzwungen, weiterhin frei änderbar). Begründung: eine Auswertung der real bei
+    einem Nutzer bestehenden Helper (2026-09-18, siehe Analyse unten) ergab, dass der
+    State in der Mehrheit der Fälle ohnehin exakt dem ersten Forecast-Wert
+    entspricht – der Standardwert deckt den häufigsten Fall ab und reduziert den
+    Konfigurationsaufwand, ohne den unhäufigeren Fall eines bewusst abweichenden
+    State-Templates (z. B. Berechnung direkt aus einer Live-Entity statt aus
+    `forecast[0]`) einzuschränken.
+    - Analyseergebnis (6 real genutzte Helper): bei 4 von 6 entsprach der
+      konfigurierte State-Template-Wert bei Index 0 exakt (oder mit identischer
+      Formel) dem Ergebnis des Attribut-Templates; bei einem war das
+      State-Template bewusst unabhängig von `forecast[0]` (Live-Wert einer
+      Quell-Entity), bei einem wich es unbeabsichtigt ab (fehlende
+      Zeitfenster-Bedingung, die im Attribut-Template vorhanden war) – ein
+      Hinweis darauf, dass die Vorbelegung tendenziell auch Fehler dieser Art
+      vermeidet.
 
 - Templates müssen **serverseitig validiert** werden, bevor der Helper angelegt/
   gespeichert wird:
