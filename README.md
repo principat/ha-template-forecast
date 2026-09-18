@@ -2,25 +2,141 @@
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=principat&repository=ha-template-forecast&category=integration)
 
-A HACS custom integration that generates forecast sensors from Jinja2 templates –
-as a "helper" through the normal UI (Settings → Devices & Services → Helpers → Create Helper).
+A HACS custom integration that lets you build forecast sensors from your own
+Jinja2 templates, entirely through the Home Assistant UI - no YAML required.
 
-Two modes:
+---
 
-- **Generate**: you specify a planning horizon (number of steps + step size). The
-  attribute template is evaluated once per step and produces a `forecast` list
-  (default name configurable).
-- **Transform**: you select an existing entity whose list attribute (e.g. `forecast`)
-  is run step by step through your template. You can build a new object in the process.
+## For users
 
-In both modes a **state template** is also required, which is rendered independently
-of the attribute template and has access to the finished forecast result (variable `forecast`).
+### What is this?
 
-## Tests
+Many integrations (weather, energy prices, ...) expose a "forecast": a sensor
+whose state is the current value, plus a list of future values in an
+attribute. **Template Forecast** lets you build a sensor like that yourself,
+using Jinja2 templates you write in the normal "Create Helper" dialog - the
+same way you'd create a built-in Template Helper.
+
+Two modes are available:
+
+- **Generate**: you define a planning horizon (number of steps + step size,
+  e.g. "24 steps of 60 minutes"). Your template is evaluated once per step to
+  produce a `forecast` list (the attribute name is configurable).
+- **Transform**: you pick an existing entity whose list attribute (e.g.
+  `forecast`) you want to transform - your template runs once per item of
+  that list. Useful for unit conversions, combining a forecast with another
+  sensor, re-labeling fields, etc.
+
+In both modes, a **state template** is also required. It's rendered
+separately, after the forecast list is built, and has access to the finished
+result via the `forecast` variable - so the sensor's state can be, say, "the
+next hour's value" or an aggregate over the whole list.
+
+### Why would I use this?
+
+- You already know Jinja2 (from Home Assistant's Template Helper/sensors) and
+  don't want to learn YAML, write a full custom integration, or maintain a
+  `template:` block in your configuration for something that's really a
+  "helper".
+- You want a forecast-shaped sensor (state + list attribute) for your own
+  dashboards, automations, or energy tools (e.g. compatible with the
+  `time`/`value` shape many forecast-consuming tools expect), based on data
+  or logic Home Assistant doesn't provide out of the box.
+- You want to reshape or combine an existing forecast sensor from another
+  integration without duplicating its update logic.
+
+### How do I use it?
+
+1. **Install** via HACS (recommended) or manually:
+   - Click the "Open in your Home Assistant instance" badge above (requires
+     HACS and [My Home Assistant](https://www.home-assistant.io/integrations/my/)),
+     or add `principat/ha-template-forecast` as a custom repository in HACS
+     manually (category "Integration").
+   - Alternatively, copy the `custom_components/template_forecast` folder
+     directly into `config/custom_components/`.
+   - Restart Home Assistant.
+2. **Create a helper**: Settings → Devices & Services → Helpers → "+ Create
+   Helper" → "Template Forecast".
+3. Pick a **name** and a **mode** (Generate or Transform). The mode can't be
+   changed later - if you pick wrong, delete the helper and create a new one.
+4. Fill in the state template and attribute template. Each template field has
+   a collapsed "Info & examples" section above it with a ready-to-copy
+   example and a description of the variables available in that field/mode -
+   expand it if you're unsure what to write.
+5. Optionally set a unit, device class, state class, and icon for the sensor
+   - these only affect how the sensor's *state* is displayed, not the
+     individual forecast values.
+6. Save. The new sensor appears immediately and recalculates automatically
+   whenever any entity your templates reference changes, plus periodically
+   on the configured update interval as a safety net.
+
+You can reopen any helper later (three dots next to it → "Configure") to
+change templates, horizon, update interval, target attribute, or source -
+everything except the mode.
+
+#### Template variables reference
+
+**Generate mode, attribute template:**
+- `index` - 0-based step index
+- `horizon` - total number of steps
+- `forecast_time` - timestamp of this step (datetime, UTC)
+
+The template's return value becomes the forecast entry's `value`, giving
+`{"time": <forecast_time as ISO string>, "value": <rendered result>}` - the
+`"time"` key matches the format HAEO's own forecast sensors expect. If the
+template renders a dict instead of a scalar, its keys are merged into the
+entry (e.g. to add extra fields alongside `time`/`value`).
+
+**Transform mode, attribute template:**
+- `index` - position in the source list
+- `item` - the complete original element (dict) from the source attribute
+- `value` - `item.value`, if present (convenience)
+
+**State template (both modes):**
+- `forecast` - the already computed result list (list of `{time, value}` in
+  generate mode; in transform mode the original item's keys, whatever the
+  source entity used, e.g. `{start_time, value}`)
+- additionally in transform mode: `source` (state of the source entity),
+  `source_forecast` (original list before the transformation)
+- all normal Jinja functions (`states()`, `state_attr()`, `now()`, ...) are
+  available as usual.
+
+#### Default sensor properties
+
+As with the built-in template sensor helper, the following can also be set
+(all optional):
+
+- **Unit** (`unit_of_measurement`)
+- **Device class** (`device_class`, dropdown with all valid `SensorDeviceClass` values)
+- **State class** (`state_class`, `measurement` / `total` / `total_increasing`)
+- **Icon** (icon picker, e.g. `mdi:currency-eur`)
+
+---
+
+## For developers
+
+This section covers the repo layout, how to test and release changes, and
+conventions to follow so contributions fit the existing project.
+
+### Repository layout
+
+- `custom_components/template_forecast/` - the integration itself
+  (`config_flow.py`, `sensor.py`, `const.py`, `strings.json` +
+  `translations/`).
+- `tests/` - mocked unit/flow tests (fast, no real HA install).
+- `tests_e2e/` - real-browser end-to-end tests against a real, throwaway HA
+  instance.
+- `docs/REQUIREMENTS.md` - the maintained requirements specification for this
+  project (functional requirements + the technical implementation choices),
+  kept up to date as new requirements come in. Check it before making
+  behavioral changes, and update it alongside the code when a requirement
+  changes.
+
+### Tests
 
 ```bash
 pip install -r requirements_test.txt
-pytest
+python -m pytest
 ```
 
 This runs entirely in-process against a mocked Home Assistant core
@@ -40,11 +156,16 @@ no real HA install, no restart, no manual click-through needed to check a change
   It also loads the strings through HA's real translation loader, the same
   path the frontend uses.
 
+Always run this repo's pytest via `python -m pytest`, not the bare `pytest`
+entry point - the latter doesn't add the repo root to `sys.path`, which
+breaks the `from custom_components.template_forecast...` imports used
+throughout the tests.
+
 [.github/workflows/test.yml](.github/workflows/test.yml) runs the suite on every pull
 request, and [.github/workflows/release.yml](.github/workflows/release.yml) runs it
 again as a gate before any release job.
 
-## E2E UI tests (real Home Assistant, real browser)
+### E2E UI tests (real Home Assistant, real browser)
 
 `tests/test_translations.py` checks that the config-flow strings are
 well-formed; it doesn't see how they actually render. `tests_e2e/` closes
@@ -76,7 +197,21 @@ takes longer than the mocked unit tests. It isn't part of the release gate;
 [.github/workflows/test-e2e.yml](.github/workflows/test-e2e.yml) runs it on
 every pull request and uploads the screenshots as a build artifact.
 
-## Releases
+When changing `config_flow.py` or its translations in a way that affects
+layout or adds new UI elements, extend
+`tests_e2e/test_config_flow_rendering.py` rather than trusting the
+JSON-level ICU/markdown checks alone.
+
+### Translations
+
+`strings.json` and `translations/*.json` are parsed by the frontend as **ICU
+MessageFormat**, not Python `str.format`-style doubled braces. A literal
+`{`/`}` in an example or description must be wrapped in an ICU quoted
+literal span (`'...'`, opened by an apostrophe immediately followed by
+`{`/`}`/`#`), not escaped by doubling. Keep `en` and `de` structurally in
+sync - `tests/test_translations.py` enforces this.
+
+### Releases
 
 Versioning is automated with [semantic-release](https://semantic-release.gitbook.io/) via
 [.github/workflows/release.yml](.github/workflows/release.yml). On every push to `master`,
@@ -85,63 +220,12 @@ commit messages are analyzed following [Conventional Commits](https://www.conven
 - `fix: ...` → patch release
 - `feat: ...` → minor release
 - `feat!: ...` or a `BREAKING CHANGE:` footer → major release
+- other types (`chore:`, `docs:`, `ci:`, ...) don't trigger a release
 
 A release run bumps `custom_components/template_forecast/manifest.json`, updates
 `CHANGELOG.md`, tags the commit, and publishes a GitHub Release with generated notes.
-Commits that don't match a release type (e.g. `chore:`, `docs:`) don't trigger a release.
+The release job only runs if the test suite passes (`needs: test`).
 
-## Installation
-
-1. Click the "Open in your Home Assistant instance" badge above (requires HACS and
-   [My Home Assistant](https://www.home-assistant.io/integrations/my/) to be set up), or
-   add `principat/ha-template-forecast` as a custom repository in HACS manually (category
-   "Integration"), or copy the `custom_components/template_forecast` folder directly to
-   `config/custom_components/`.
-2. Restart Home Assistant.
-3. Settings → Devices & Services → Helpers → "+ Create Helper" → "Template Forecast".
-
-## Editing
-
-Helpers that have already been created can be reopened at any time via the three dots
-next to the helper → "Configure". The mode (Generate/Transform) is fixed once created,
-all other fields (templates, horizon, update interval, target attribute, source) can be changed.
-
-## Template Variables
-
-### Generate mode, attribute template
-- `index` – 0-based step index
-- `horizon` – total number of steps
-- `forecast_time` – timestamp of this step (datetime, UTC)
-
-The template's return value becomes the forecast entry's `value`, giving
-`{"time": <forecast_time as ISO string>, "value": <rendered result>}` – the
-`"time"` key matches the format HAEO's own forecast sensors expect. If the
-template renders a dict instead of a scalar, its keys are merged into the
-entry (e.g. to add extra fields alongside `time`/`value`).
-
-### Transform mode, attribute template
-- `index` – position in the source list
-- `item` – the complete original element (dict) from the source attribute
-- `value` – `item.value`, if present (convenience)
-
-### State template (both modes)
-- `forecast` – the already computed result list (list of `{time, value}` in
-  generate mode; in transform mode the original item's keys, whatever the
-  source entity used, e.g. `{start_time, value}`)
-- additionally in transform mode: `source` (state of the source entity), `source_forecast`
-  (original list before the transformation)
-- all normal Jinja functions (`states()`, `state_attr()`, `now()`, …) are available
-  as usual.
-
-## Default Sensor Properties
-
-As with the built-in template sensor helper, the following can also be set (all optional):
-
-- **Unit** (`unit_of_measurement`)
-- **Device class** (`device_class`, dropdown with all valid `SensorDeviceClass` values)
-- **State class** (`state_class`, `measurement` / `total` / `total_increasing`)
-- **Icon** (icon picker, e.g. `mdi:currency-eur`)
-
-These fields only affect the state/display of the entity, not the calculation –
-for the individual forecast values in the attribute there is (deliberately, analogous to
-most forecast conventions) no separate unit per list item.
+**Use commit types deliberately** - if you want a change committed without
+publishing a new version (e.g. docs, CI tweaks, non-user-facing chores), use
+a non-releasing type like `docs:`/`chore:`/`ci:`.
