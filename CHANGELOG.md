@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/principat/ha-template-forecast/compare/v1.4.1...v1.5.0) (2026-09-18)
+
+
+### Features
+
+* move state template below attribute template, default to forecast[0].value ([661f572](https://github.com/principat/ha-template-forecast/commit/661f57224937476b47d63477d90650a50abc8196))
+
 ## [1.4.1](https://github.com/principat/ha-template-forecast/compare/v1.4.0...v1.4.1) (2026-09-17)
 
 
