@@ -139,17 +139,12 @@ _ATTRIBUTE_TEMPLATE_EXAMPLES = {
 }
 
 
+_DEFAULT_STATE_TEMPLATE = "{{ forecast[0].value }}"
+
+
 def _common_schema(defaults: dict[str, Any], mode: str) -> dict:
     """Fields that appear in both modes."""
     return {
-        vol.Optional(
-            _info_section_key(CONF_STATE_TEMPLATE, mode), default={}
-        ): _info_section(
-            CONF_STATE_TEMPLATE, mode, _STATE_TEMPLATE_EXAMPLES[mode]
-        ),
-        vol.Required(
-            CONF_STATE_TEMPLATE, default=defaults.get(CONF_STATE_TEMPLATE, "")
-        ): _LenientTemplateSelector(),
         vol.Optional(
             _info_section_key(CONF_ATTRIBUTE_TEMPLATE, mode), default={}
         ): _info_section(
@@ -157,6 +152,15 @@ def _common_schema(defaults: dict[str, Any], mode: str) -> dict:
         ),
         vol.Required(
             CONF_ATTRIBUTE_TEMPLATE, default=defaults.get(CONF_ATTRIBUTE_TEMPLATE, "")
+        ): _LenientTemplateSelector(),
+        vol.Optional(
+            _info_section_key(CONF_STATE_TEMPLATE, mode), default={}
+        ): _info_section(
+            CONF_STATE_TEMPLATE, mode, _STATE_TEMPLATE_EXAMPLES[mode]
+        ),
+        vol.Required(
+            CONF_STATE_TEMPLATE,
+            default=defaults.get(CONF_STATE_TEMPLATE, _DEFAULT_STATE_TEMPLATE),
         ): _LenientTemplateSelector(),
         vol.Optional(
             CONF_TARGET_ATTRIBUTE,
