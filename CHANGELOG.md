@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/principat/ha-template-forecast/compare/v1.6.0...v1.6.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* **card:** keep axis titles and legend inside the chart in dashboards ([974a815](https://github.com/principat/ha-template-forecast/commit/974a815014d0b2a9e55a53ca4b5a25b78d443873))
+
 # [1.6.0](https://github.com/principat/ha-template-forecast/compare/v1.5.0...v1.6.0) (2026-10-03)
 
 
