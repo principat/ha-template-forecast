@@ -1,0 +1,95 @@
+name: Bug report / Fehlermeldung
+description: Something does not work as expected / Etwas funktioniert nicht wie erwartet
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill in all fields - without the templates and the sensor values a problem usually cannot be reproduced. The issue is labeled `bug` and automatically with the version number you enter below.
+
+        Bitte alle Felder ausfüllen - ohne Templates und Sensorwerte lässt sich ein Problem meist nicht nachvollziehen. Das Issue wird mit `bug` und automatisch mit der unten angegebenen Versionsnummer gekennzeichnet.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What did you want to achieve with the template? / Was wolltest du mit dem Template erreichen?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Template Forecast version / Version
+      description: Shown in HACS or in custom_components/template_forecast/manifest.json. Format `x.y.z`.
+      placeholder: "1.4.1"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version / Version
+      placeholder: "2026.10.0"
+    validations:
+      required: false
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Variant / Variante
+      options:
+        - Generate
+        - Transform
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does the problem occur? / Wo tritt der Fehler auf?
+      options:
+        - State
+        - Forecast (attribute)
+        - Both / Beides
+        - Configuration dialog / Einrichtungsdialog
+    validations:
+      required: true
+  - type: textarea
+    id: state_template
+    attributes:
+      label: State template used / Verwendetes State-Template
+      render: jinja
+    validations:
+      required: true
+  - type: textarea
+    id: attribute_template
+    attributes:
+      label: Attribute template used / Verwendetes Attribut-Template
+      render: jinja
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output of the sensor / Ausgabe des Sensors
+      description: State and (the first entries of) the `forecast` attribute, e.g. from Developer tools → States. / State und (die ersten Einträge des) Attributs `forecast`, z. B. aus Entwicklerwerkzeuge → Zustände.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Values of the input sensors / Werte der Eingabesensoren
+      description: State and relevant attributes of every sensor used in the templates (incl. the source entity in Transform mode). / State und relevante Attribute aller Sensoren, die in den Templates verwendet werden (im Transform-Modus inkl. der Quell-Entität).
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result / Erwartetes Ergebnis
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log excerpt (optional) / Log-Auszug (optional)
+      render: text
+    validations:
+      required: false

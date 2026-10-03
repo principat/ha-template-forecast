@@ -1,0 +1,86 @@
+name: Example / Beispiel
+description: Share a working configuration so others can reuse it / Eine funktionierende Konfiguration teilen
+title: "[Example] "
+labels: ["example"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing! Please follow the structure of the files in [`examples/`](https://github.com/principat/ha-template-forecast/tree/master/examples) so others can adopt your configuration with small changes. English or German is fine.
+
+        Danke fürs Teilen! Bitte orientiere dich am Aufbau der Dateien in [`examples/`](https://github.com/principat/ha-template-forecast/tree/master/examples), damit andere deine Konfiguration mit kleinen Anpassungen übernehmen können. Englisch oder Deutsch ist beides in Ordnung.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal / Ziel
+      description: What does the sensor achieve and why was it created? / Was soll der Sensor erreichen, warum wurde er erstellt?
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where does it act (e.g. in HAEO) / Wo wirkt er (z. B. in HAEO)
+      description: Which consumer uses the sensor, in which field? / Welche Komponente verwendet den Sensor, in welchem Feld?
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode / Modus
+      options:
+        - Generate
+        - Transform
+    validations:
+      required: true
+  - type: textarea
+    id: settings
+    attributes:
+      label: Helper settings / Helfer-Einstellungen
+      description: Horizon (steps x step size), source entity and attribute (Transform), unit, device class, state class, update interval.
+      placeholder: |
+        Horizon: 72 steps x 60 min
+        Unit: €/kWh
+        Device class: monetary
+        State class: measurement
+        Update interval: 60 min
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: External sensors and values / Externe Sensoren und Werte
+      description: For each one - what it represents, unit, expected format (e.g. attribute structure).
+      placeholder: |
+        | Placeholder | Meaning | Unit | Format |
+        |---|---|---|---|
+        | sensor.EXAMPLE | ... | kW | attribute `forecast`: list of {time, value} |
+    validations:
+      required: true
+  - type: textarea
+    id: constants
+    attributes:
+      label: Constants in the template / Konstanten im Template
+      description: Explain every fixed value (except pure conversion factors like 1000 or 60). / Alle festen Werte erklären (außer reinen Umrechnungsfaktoren wie 1000 oder 60).
+    validations:
+      required: true
+  - type: textarea
+    id: state_template
+    attributes:
+      label: State template (with placeholders for your sensors)
+      render: jinja
+    validations:
+      required: true
+  - type: textarea
+    id: attribute_template
+    attributes:
+      label: Attribute template (with placeholders for your sensors)
+      render: jinja
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / Hinweise
+      description: Limitations, typical adaptations, tested versions. / Einschränkungen, typische Anpassungen, getestete Versionen.
+    validations:
+      required: false

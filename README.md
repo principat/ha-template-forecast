@@ -2,6 +2,8 @@
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=principat&repository=ha-template-forecast&category=integration)
 
+**English** | [Deutsche Version](#deutsch) (further down in this file)
+
 A HACS custom integration that lets you build forecast sensors from your own
 Jinja2 templates, entirely through the Home Assistant UI - no YAML required.
 
@@ -111,6 +113,15 @@ As with the built-in template sensor helper, the following can also be set
 - **State class** (`state_class`, `measurement` / `total` / `total_increasing`)
 - **Icon** (icon picker, e.g. `mdi:currency-eur`)
 
+### Examples
+
+Ready-to-adapt, real-world configurations for use with
+[HAEO](https://haeo.io) (feed-in during negative prices, EV availability and
+charging target, wallbox power limit, solar charge lateness) are in
+[`examples/`](examples/) - [English](examples/en/README.md) |
+[Deutsch](examples/de/README.md). Have one to share? Open an issue with the
+[Example template](https://github.com/principat/ha-template-forecast/issues/new?template=example.yml).
+
 ---
 
 ## For developers
@@ -126,6 +137,12 @@ conventions to follow so contributions fit the existing project.
 - `tests/` - mocked unit/flow tests (fast, no real HA install).
 - `tests_e2e/` - real-browser end-to-end tests against a real, throwaway HA
   instance.
+- `examples/` - documented example configurations, one folder per language
+  (`examples/en/`, `examples/de/`). A new language gets its own folder with
+  the same file structure.
+- `.github/ISSUE_TEMPLATE/` - issue forms for bug reports (`bug` label, plus a
+  `version: x.y.z` label set by `.github/workflows/label-version.yml`) and
+  shared examples (`example` label).
 - `docs/REQUIREMENTS.md` - the maintained requirements specification for this
   project (functional requirements + the technical implementation choices),
   kept up to date as new requirements come in. Check it before making
@@ -229,3 +246,140 @@ The release job only runs if the test suite passes (`needs: test`).
 **Use commit types deliberately** - if you want a change committed without
 publishing a new version (e.g. docs, CI tweaks, non-user-facing chores), use
 a non-releasing type like `docs:`/`chore:`/`ci:`.
+
+---
+
+<a id="deutsch"></a>
+
+# Deutsch
+
+[English version](#template-forecast-home-assistant-helper) (oben in dieser Datei)
+
+Template Forecast ist eine HACS-Integration, mit der du Forecast-Sensoren aus
+eigenen Jinja2-Templates baust, komplett über die Home-Assistant-Oberfläche -
+ohne YAML.
+
+> Dieser Abschnitt enthält die Anleitung für Anwender. Der Bereich
+> „For developers" (Repository-Aufbau, Tests, Releases) gilt für beide Sprachen
+> und steht nur auf Englisch weiter oben.
+
+## Für Anwender
+
+### Was ist das?
+
+Viele Integrationen (Wetter, Strompreise, ...) liefern eine „Prognose": einen
+Sensor, dessen State der aktuelle Wert ist und der in einem Attribut eine Liste
+künftiger Werte enthält. Mit **Template Forecast** baust du so einen Sensor
+selbst, mit Jinja2-Templates im normalen Dialog „Helfer erstellen" - genauso wie
+beim eingebauten Template-Helfer.
+
+Es gibt zwei Modi:
+
+- **Generate**: Du legst einen Planungshorizont fest (Anzahl Schritte +
+  Schrittweite, z. B. „24 Schritte à 60 Minuten"). Dein Template wird einmal
+  pro Schritt ausgewertet und erzeugt die `forecast`-Liste (der Attributname
+  ist konfigurierbar).
+- **Transform**: Du wählst eine bestehende Entität, deren Listen-Attribut
+  (z. B. `forecast`) du umwandeln willst - dein Template läuft einmal pro
+  Listeneintrag. Nützlich für Einheitenumrechnung, das Verknüpfen einer
+  Prognose mit einem anderen Sensor, das Umbenennen von Feldern usw.
+
+In beiden Modi ist zusätzlich ein **State-Template** nötig. Es wird separat
+ausgewertet, nachdem die Forecast-Liste erstellt wurde, und kann über die
+Variable `forecast` auf das fertige Ergebnis zugreifen - der State des Sensors
+kann also z. B. „der Wert der nächsten Stunde" oder eine Auswertung über die
+ganze Liste sein.
+
+### Wofür ist das nützlich?
+
+- Du kennst Jinja2 (aus Template-Helfern/-Sensoren von Home Assistant) und
+  willst weder YAML lernen, noch eine komplette Integration schreiben, noch
+  einen `template:`-Block in der Konfiguration pflegen für etwas, das
+  eigentlich ein „Helfer" ist.
+- Du brauchst einen Forecast-Sensor (State + Listen-Attribut) für eigene
+  Dashboards, Automationen oder Energie-Tools (z. B. im `time`/`value`-Format,
+  das viele Tools erwarten), basierend auf Daten oder Logik, die Home Assistant
+  nicht von Haus aus liefert.
+- Du willst einen bestehenden Forecast-Sensor einer anderen Integration
+  umformen oder kombinieren, ohne dessen Aktualisierungslogik zu duplizieren.
+
+### Wie benutze ich es?
+
+1. **Installieren** über HACS (empfohlen) oder manuell:
+   - Auf das „Open in your Home Assistant instance"-Badge oben klicken
+     (benötigt HACS und
+     [My Home Assistant](https://www.home-assistant.io/integrations/my/)),
+     oder `principat/ha-template-forecast` in HACS manuell als eigenes
+     Repository hinzufügen (Kategorie „Integration").
+   - Alternativ den Ordner `custom_components/template_forecast` direkt nach
+     `config/custom_components/` kopieren.
+   - Home Assistant neu starten.
+2. **Helfer erstellen**: Einstellungen → Geräte & Dienste → Helfer → „+ Helfer
+   erstellen" → „Template Forecast".
+3. **Namen** und **Modus** (Generate oder Transform) wählen. Der Modus lässt
+   sich später nicht mehr ändern - bei falscher Wahl den Helfer löschen und
+   neu anlegen.
+4. State-Template und Attribut-Template ausfüllen. Über jedem Template-Feld
+   gibt es einen eingeklappten Bereich „Info & examples" mit einem
+   kopierfertigen Beispiel und einer Beschreibung der in diesem Feld/Modus
+   verfügbaren Variablen.
+5. Optional Einheit, Geräteklasse, Zustandsklasse und Icon setzen - diese
+   wirken sich nur auf die Darstellung des *States* aus, nicht auf die
+   einzelnen Forecast-Werte.
+6. Speichern. Der neue Sensor erscheint sofort und wird automatisch neu
+   berechnet, sobald sich eine in den Templates referenzierte Entität ändert,
+   zusätzlich periodisch im eingestellten Aktualisierungsintervall als
+   Sicherheitsnetz.
+
+Jeden Helfer kannst du später wieder öffnen (drei Punkte → „Konfigurieren"),
+um Templates, Horizont, Aktualisierungsintervall, Ziel-Attribut oder Quelle zu
+ändern - alles außer dem Modus.
+
+#### Referenz der Template-Variablen
+
+**Generate-Modus, Attribut-Template:**
+- `index` - 0-basierter Schrittindex
+- `horizon` - Gesamtzahl der Schritte
+- `forecast_time` - Zeitstempel dieses Schritts (datetime, UTC)
+
+Der Rückgabewert des Templates wird zum `value` des Forecast-Eintrags, also
+`{"time": <forecast_time als ISO-String>, "value": <Ergebnis>}` - der Schlüssel
+`"time"` entspricht dem Format, das HAEOs eigene Forecast-Sensoren erwarten.
+Liefert das Template ein Dict statt eines Skalars, werden dessen Schlüssel in
+den Eintrag übernommen (z. B. für zusätzliche Felder neben `time`/`value`).
+
+**Transform-Modus, Attribut-Template:**
+- `index` - Position in der Quellliste
+- `item` - das vollständige Originalelement (Dict) aus dem Quellattribut
+- `value` - `item.value`, falls vorhanden (Komfortvariable)
+
+**State-Template (beide Modi):**
+- `forecast` - die bereits berechnete Ergebnisliste (Liste aus `{time, value}`
+  im Generate-Modus; im Transform-Modus die Schlüssel des Originaleintrags,
+  was immer die Quelle verwendet, z. B. `{start_time, value}`)
+- zusätzlich im Transform-Modus: `source` (State der Quellentität),
+  `source_forecast` (Originalliste vor der Umwandlung)
+- alle üblichen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, ...)
+  stehen wie gewohnt zur Verfügung.
+
+#### Standard-Sensoreigenschaften
+
+Wie beim eingebauten Template-Sensor-Helfer lassen sich folgende Eigenschaften
+setzen (alle optional):
+
+- **Einheit** (`unit_of_measurement`)
+- **Geräteklasse** (`device_class`, Dropdown mit allen gültigen
+  `SensorDeviceClass`-Werten)
+- **Zustandsklasse** (`state_class`, `measurement` / `total` /
+  `total_increasing`)
+- **Icon** (Icon-Auswahl, z. B. `mdi:currency-eur`)
+
+### Beispiele
+
+Praxisnahe, anpassbare Konfigurationen für die Verwendung mit
+[HAEO](https://haeo.io) (Einspeisung bei negativen Preisen, E-Auto-Verfügbarkeit
+und Ladeziel, Wallbox-Leistungsbegrenzung, Solar-Ladeverzögerung) findest du in
+[`examples/`](examples/) - [Deutsch](examples/de/README.md) |
+[English](examples/en/README.md). Du hast eine eigene Konfiguration zu teilen?
+Eröffne ein Issue mit der
+[Vorlage „Example"](https://github.com/principat/ha-template-forecast/issues/new?template=example.yml).
