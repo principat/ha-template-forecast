@@ -4,6 +4,10 @@
   "codeowners": [
     "@principat"
   ],
+  "after_dependencies": [
+    "http",
+    "frontend"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/principat/ha-template-forecast",
   "issue_tracker": "https://github.com/principat/ha-template-forecast/issues",

@@ -113,6 +113,29 @@ As with the built-in template sensor helper, the following can also be set
 - **State class** (`state_class`, `measurement` / `total` / `total_increasing`)
 - **Icon** (icon picker, e.g. `mdi:currency-eur`)
 
+### Forecast Chart card
+
+The integration ships a dashboard card that plots forecast sensors (Template Forecast, HAEO,
+EPEX Spot, ... - any entity with a list attribute) as a time series. Add it via Dashboard →
+Edit → Add card → **Forecast Chart**. Pick the entity and the list attribute, time field and
+value field are pre-selected; add more entities or more value fields, and use the *Details*
+section per field for a scaling factor, name, color and more. The configuration can be
+changed at any time (⋮ → Edit). Details and the YAML format:
+[`frontend/README.md`](frontend/README.md).
+
+> The card is provided by the integration, so it becomes available once the integration is
+> loaded, i.e. as soon as at least one Template Forecast helper exists. Restart Home Assistant
+> after the first install, and reload the browser page if the card does not show up.
+
+**Preview:** the card picker shows a live preview (using the first entity with a list attribute
+it finds), and the card editor shows the chart while you configure it, so every change is
+visible immediately.
+
+![Forecast Chart card showing charging cost, maximum charging power, outdoor temperature and target state of charge as step lines on two Y axes](docs/images/forecast-chart-card.png)
+
+*Screenshot rendered with sample data: four series on two Y axes (ct/kWh left; kW, °C and %
+right), step lines and the dotted "now" marker.*
+
 ### Examples
 
 Ready-to-adapt, real-world configurations for use with
@@ -137,6 +160,10 @@ conventions to follow so contributions fit the existing project.
 - `tests/` - mocked unit/flow tests (fast, no real HA install).
 - `tests_e2e/` - real-browser end-to-end tests against a real, throwaway HA
   instance.
+- `frontend/` - source of the Forecast Chart dashboard card (TypeScript, own
+  toolchain, tests and README). The build output lives in
+  `custom_components/template_forecast/www/` and is committed; the only Python link is
+  `custom_components/template_forecast/frontend.py`.
 - `examples/` - documented example configurations, one folder per language
   (`examples/en/`, `examples/de/`). A new language gets its own folder with
   the same file structure.
@@ -373,6 +400,30 @@ setzen (alle optional):
 - **Zustandsklasse** (`state_class`, `measurement` / `total` /
   `total_increasing`)
 - **Icon** (Icon-Auswahl, z. B. `mdi:currency-eur`)
+
+### Forecast-Diagramm-Karte
+
+Die Integration liefert eine Dashboard-Karte mit, die Forecast-Sensoren (Template Forecast,
+HAEO, EPEX Spot, ... - jede Entität mit Listenattribut) als Zeitreihe darstellt. Hinzufügen
+über Dashboard → Bearbeiten → Karte hinzufügen → **Forecast Chart**. Entität wählen, Listen-
+Attribut, Zeitfeld und Wertefeld sind vorausgewählt; weitere Entitäten oder Wertefelder lassen
+sich hinzufügen, und im Bereich *Details* je Feld stehen Skalierungsfaktor, Name, Farbe u. a.
+bereit. Die Konfiguration kann jederzeit geändert werden (⋮ → Bearbeiten). Details und
+YAML-Format: [`frontend/README.md`](frontend/README.md).
+
+> Die Karte wird von der Integration bereitgestellt und ist verfügbar, sobald die Integration
+> geladen ist, also sobald mindestens ein Template-Forecast-Helper existiert. Nach der ersten
+> Installation Home Assistant neu starten und die Seite im Browser neu laden, falls die Karte
+> nicht erscheint.
+
+**Vorschau:** Der Karten-Dialog zeigt eine Live-Vorschau (mit der ersten gefundenen Entität
+mit Listenattribut), und der Karten-Editor zeigt das Diagramm während der Konfiguration, sodass
+jede Änderung sofort sichtbar ist.
+
+![Forecast-Chart-Karte mit Ladekosten, maximaler Ladeleistung, Außentemperatur und Ziel-Ladezustand als Stufenlinien auf zwei Y-Achsen](docs/images/forecast-chart-card.png)
+
+*Screenshot mit Beispieldaten: vier Serien auf zwei Y-Achsen (ct/kWh links; kW, °C und %
+rechts), Stufenlinien und gepunktete „Jetzt“-Markierung.*
 
 ### Beispiele
 

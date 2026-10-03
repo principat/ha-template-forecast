@@ -176,6 +176,99 @@ Entity automatisch neu laden (kein Neustart von Home Assistant nötig).
 - Nach Installation: normale Einbindung über Settings → Devices & Services →
   Helpers → "+ Create Helper" → "Template Forecast" (kein YAML nötig).
 
+### 2.8 Forecast-Diagramm-Karte (Dashboard)
+
+> **Status: umgesetzt (Stand 2026-10-03), noch nicht in einer echten Home-Assistant-
+> Oberfläche abgenommen.** Entscheidungen zur Umsetzung: eigene Lovelace-Karte mit grafischem Editor; Diagramm auf Basis von
+> **Plotly**, wobei Plotly **mitgeliefert** wird (keine Abhängigkeit von der
+> HACS-Karte `plotly-graph-card`); Code im selben Repo, aber so abgegrenzt, dass er später
+> leicht in ein eigenes Repo ausgelagert werden kann (siehe 4.7). Die mit
+> *(Vorschlag)* markierten Punkte wurden bestätigt und sind umgesetzt.
+
+**Zweck:** Forecast-Sensoren (Template-Forecast-Helper, aber auch beliebige andere
+Entities mit Listenattribut, z. B. HAEO oder EPEX Spot) sollen sich im Dashboard als
+Zeitreihen-Diagramm ansehen lassen, ohne dass der Nutzer dafür YAML oder Plotly-
+Konfiguration schreiben muss. Typischer Anwendungsfall: während der Entwicklung eines
+Templates die Vorschau kontrollieren und mehrere Forecasts (z. B. Preis, Verfügbarkeit,
+Ladeziel) übereinander legen.
+
+**Bedienung (alles im Karten-Editor, kein YAML nötig):**
+
+- Die Karte ist **jederzeit nach dem Anlegen konfigurierbar**: Der Editor öffnet sich mit der
+  gespeicherten Konfiguration (Karte bearbeiten), zeigt die dort hinterlegten Werte an und
+  überschreibt sie nicht durch die Auto-Erkennung. Die Auto-Erkennung greift nur, wenn der
+  Nutzer eine Entity oder ein Listen-Attribut neu wählt oder wenn Felder in der YAML fehlen
+  (dann wird zur Laufzeit erkannt).
+- Die Karte besteht aus einer **Liste von Serien-Quellen**. Weitere Entities lassen sich
+  **hinzufügen, entfernen und umsortieren**.
+- Pro Serien-Quelle:
+  1. **Entity** wählen (Entity-Picker). *(Vorschlag: nur Entities anbieten, die ein
+     Listenattribut besitzen; Template-Forecast-Sensoren hervorgehoben.)*
+  2. **Listen-Attribut** (Dropdown): wird nach der Entity-Auswahl **automatisch
+     vorbelegt**. Kandidaten sind alle Attribute, deren Wert eine Liste von Objekten
+     (Dicts) ist. Vorbelegung: `forecast`, falls vorhanden; sonst `data`; sonst das erste
+     Kandidaten-Attribut. Immer manuell änderbar.
+  3. **Zeitfeld** (Dropdown): Schlüssel der Listeneinträge, die sich als Zeitstempel
+     lesen lassen. **Automatisch vorbelegt**, Reihenfolge: `time`, `start_time`,
+     `datetime`, `start`, sonst der erste Schlüssel mit ISO-8601-Zeitstempel.
+  4. **Wertefeld** (Dropdown): numerischer Schlüssel der Einträge. **Automatisch
+     vorbelegt** mit `value`, sonst dem ersten numerischen Schlüssel (z. B.
+     `price_per_kwh`).
+  5. **Weitere Wertefelder** derselben Entity können zusätzlich ausgewählt werden
+     (Mehrfachauswahl, z. B. `outdoor_temp` neben `value`). Jedes Wertefeld wird eine
+     eigene Linie. *(Vorschlag: Vorauswahl ist standardmäßig leer; Felder, die bereits
+     das Zeitfeld sind, werden nicht angeboten.)*
+  6. **Detail-/Experteneinstellungen** (einklappbar, je Wertefeld):
+     - **Skalierungsfaktor** (Zahl, Standard 1; z. B. 1000 für kW → W, 100 für
+       €/kWh → ct/kWh).
+     - **Name** (Freitext; Standard: Anzeigename der Entity, bei mehreren Feldern
+       zusätzlich der Feldname).
+     - **Farbe** (Farbwähler; Standard: automatisch aus einer festen Palette, die in
+       hellem und dunklem Theme lesbar ist).
+     - **Einheit** (Freitext; Standard: Einheit der Entity für das erste Wertefeld, weitere
+       Felder haben ohne Angabe keine Einheit).
+     - *(Vorschlag)* **Offset** (Zahl, Standard 0; angewendet als `wert * faktor +
+       offset`).
+     - *(Vorschlag)* **Linienform**: Stufen (`hv`) oder linear. Standard Stufen, da
+       Forecast-Werte meist für ein Zeitintervall gelten.
+     - *(Vorschlag)* **Y-Achse**: automatisch; Serien mit unterschiedlicher Einheit
+       landen auf getrennten Achsen (links/rechts), manuell überschreibbar.
+     - *(Vorschlag)* **Sichtbar** ein/aus (Serie ausblenden, ohne sie zu löschen).
+- **Diagramm-Einstellungen** (global, einklappbar): Titel, Höhe, angezeigter
+  Zeitbereich (Standard: gesamter Forecast; *(Vorschlag)* optional „ab jetzt"),
+  *(Vorschlag)* Marker für „jetzt", Legende ein/aus.
+
+**Darstellung und Verhalten:**
+
+- Zeitreihendiagramm mit Zeitachse, Hover-Tooltip (Zeit, Name, skalierter Wert, Einheit),
+  Zoom/Pan und Legende zum Ein-/Ausblenden einzelner Serien.
+- Aktualisiert sich automatisch, wenn sich eine der beteiligten Entities ändert.
+- Folgt dem Home-Assistant-Theme (hell/dunkel) und ist auch auf schmalen Displays
+  benutzbar.
+- Zeitstempel werden als ISO-8601-String (mit oder ohne Zeitzone) sowie als Unix-
+  Zeitstempel akzeptiert und in der lokalen Zeitzone von Home Assistant angezeigt.
+- Nicht numerische Werte oder Einträge ohne Zeit werden übersprungen, ohne das gesamte
+  Diagramm zu verhindern.
+- Fehlende/nicht verfügbare Entity oder fehlendes Attribut führt zu einer verständlichen
+  Hinweismeldung pro Serie statt zu einem leeren oder abgestürzten Diagramm; die übrigen
+  Serien werden weiter angezeigt.
+- Die Konfiguration liegt vollständig in der Karte (kein Helper, keine zusätzliche
+  Entity) und ist auch als YAML les- und editierbar. Vorschau im Dashboard-Karten-
+  Editor ist möglich.
+- Funktioniert mit **beliebigen** Entities mit Listenattribut, nicht nur mit
+  Template-Forecast-Sensoren.
+- Lokalisierung mindestens Englisch und Deutsch (wie 2.6).
+- **Vorschau:** Der Karten-Dialog zeigt die Karte live (Stub-Konfiguration mit der ersten
+  Entity, die ein Listenattribut besitzt), und der Karten-Editor zeigt das Diagramm
+  während der Konfiguration.
+- **Dokumentation:** Die README (Anwenderteil) beschreibt die Karte inkl. Vorschau und
+  Screenshot (`docs/images/forecast-chart-card.png`, gerendert mit Beispieldaten) in
+  **Deutsch und Englisch**; beide Sprachen werden immer gemeinsam gepflegt.
+- Installation ohne Zusatzschritt: Die Karte wird mit der Integration ausgeliefert und
+  automatisch als Frontend-Ressource registriert (sobald die Integration geladen ist, also
+  ab dem ersten angelegten Helper; Home Assistant lädt eine Integration ohne Eintrag nicht) (kein manuelles Eintragen unter
+  Dashboard-Ressourcen). Sie erscheint im Karten-Dialog „Karte hinzufügen".
+
 ---
 
 ## 3. Nicht-funktionale Anforderungen
@@ -287,3 +380,51 @@ Entity automatisch neu laden (kein Neustart von Home Assistant nötig).
 ### 4.6 Sonstiges
 - Versionierte `manifest.json` gemäß HACS/HA-Anforderungen an Custom Integrations.
 - `hacs.json` für HACS-Metadaten.
+
+### 4.7 Forecast-Diagramm-Karte (zu 2.8)
+
+Leitidee: Die Karte ist ein **eigenständiges Frontend-Paket**, das nur zufällig im selben
+Repo liegt. Eine spätere Auslagerung in ein eigenes Repo soll ohne Umbau möglich sein.
+
+- **Abgrenzung im Repo:**
+  - Der gesamte Frontend-Code liegt in `frontend/` (Repo-Root, außerhalb von
+    `custom_components/`) mit eigener `package.json`, eigener Toolchain, eigenen Tests und
+    eigener README. Er importiert nichts aus der Python-Integration und die
+    Python-Integration nichts aus seinem Quellcode.
+  - Das **Build-Artefakt** liegt in `custom_components/template_forecast/www/` und wird
+    eingecheckt (HACS installiert direkt aus dem Repo). Der CI-Job
+    `.github/workflows/test-frontend.yml` schlägt fehl, wenn es nicht zum Quellcode passt.
+  - **Einzige Schnittstelle** zur Integration ist das kleine Python-Modul
+    `custom_components/template_forecast/frontend.py` (aufgerufen aus `async_setup` in
+    `__init__.py`), das das Artefakt als statischen Pfad bereitstellt und als
+    Frontend-Ressource registriert. Es darf die Integration nie beeinträchtigen (Fehler
+    werden abgefangen, fehlendes `http`/`frontend` wird übergangen). Auslagern = `frontend/`
+    und `www/` verschieben und dieses Modul samt Aufruf entfernen (bzw. durch einen HACS-
+    Eintrag der Kategorie „Dashboard" ersetzen).
+  - Kartentyp (`custom:forecast-chart-card`), Ressourcen-URL (`/forecast-chart-card/…`)
+    und Konfigurationsschema sind unabhängig vom Integrationsnamen gewählt, sodass
+    bestehende Dashboards nach einer Auslagerung weiterhin funktionieren.
+- **Technik:** TypeScript + Lit (ohne Decorators), esbuild zu einer einzelnen
+  ES-Modul-Datei, Vitest für Tests. Der Editor basiert auf `ha-form` mit Selektoren
+  (Entity, Select, Zahl, Farbe, `expandable`-Abschnitte). Die Karte rendert im Light DOM,
+  weil Plotly sein Stylesheet in `document.head` einfügt und es sonst nicht im Shadow DOM
+  wirkt. Plotly wird als **Teil-Bundle** (`plotly.js-basic-dist-min`, ca. 1,2 MB) gebündelt;
+  keine Laufzeit-Nachladung von CDNs. Zeitstempel werden vor der Übergabe an Plotly in
+  die Zeitzone von Home Assistant umgerechnet.
+- **Auto-Erkennung** (Listenattribut, Zeitfeld, Wertefeld) wird als **reine Funktionen
+  ohne DOM-/HA-Abhängigkeit** implementiert, damit sie einzeln testbar sind. Der Editor
+  ist eine dünne Schicht darüber.
+- **Tests:** Vitest-Unit-Tests (`frontend/test/`) für Erkennung, Konfigurations-
+  Normalisierung, Serienaufbau (Skalierung, Achsen, Fehler je Serie) und die Abbildung
+  Editor ↔ Konfiguration. Das Rendering wurde manuell mit einem Headless-Browser und
+  Beispieldaten geprüft. Zusätzlich prüft `tests_e2e/test_forecast_chart_card.py` in einer
+  echten Home-Assistant-Instanz mit Browser: Bundle wird ausgeliefert und die Karte
+  registriert, die Karte zeichnet je Wertefeld eine Linie, eine fehlende Entity bricht die
+  übrigen Serien nicht, und der Editor (auf `ha-form`) zeigt eine gespeicherte Konfiguration
+  unverändert an, meldet Änderungen per `config-changed` und erkennt bei einem
+  Entity-Wechsel Attribut, Zeit- und Wertefeld neu. *(Offen: Abnahme im Dashboard-
+  Karten-Dialog selbst, inkl. Live-Vorschau.)*
+- **Release-Regeln** bleiben die aus 4.5; Änderungen an der Karte werden mit Scope
+  gekennzeichnet (z. B. `feat(card): …`).
+- **Offen:** Zu 2.8 gehört noch ein passendes Gherkin-Feature in `tests_acceptance/`
+  (Tag `@REQ-2.8`), gemäß Pflegehinweis oben.
