@@ -15,6 +15,12 @@ Anforderungen zu verändern.
 > wird dieses Dokument entsprechend aktualisiert (neuer Abschnitt oder Ergänzung eines
 > bestehenden). Erledigt = "im aktuellen Code umgesetzt", nicht "irgendwann gewünscht".
 
+> **Ausführbare Spezifikation:** Die funktionalen Anforderungen in Abschnitt 2 sind
+> zusätzlich als implementierungsunabhängige Gherkin-Szenarien in
+> [`tests_acceptance/`](../tests_acceptance/) hinterlegt (ein Feature-File je
+> Unterabschnitt, mit `@REQ-2.x`-Tag). Bei einer Änderung an diesem Dokument gehört das
+> passende Feature-File zum selben Commit dazu.
+
 ---
 
 ## 1. Zweck des Projekts
@@ -426,5 +432,8 @@ Repo liegt. Eine spätere Auslagerung in ein eigenes Repo soll ohne Umbau mögli
   Karten-Dialog selbst, inkl. Live-Vorschau.)*
 - **Release-Regeln** bleiben die aus 4.5; Änderungen an der Karte werden mit Scope
   gekennzeichnet (z. B. `feat(card): …`).
-- **Offen:** Zu 2.8 gehört noch ein passendes Gherkin-Feature in `tests_acceptance/`
-  (Tag `@REQ-2.8`), gemäß Pflegehinweis oben.
+- **Akzeptanztests:** `tests_acceptance/features/2_8_forecast_diagramm_karte.feature`
+  (Tag `@REQ-2.8`) beschreibt das Verhalten implementierungsunabhängig; ausgeführt wird die
+  Logik der Karte über `tests_acceptance/card_driver.py` und die Node-Brücke
+  `frontend/acceptance/bridge.ts`. Ohne Node werden die Szenarien lokal übersprungen, in der
+  CI (`CI=true`) schlagen sie stattdessen fehl.

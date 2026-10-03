@@ -1,4 +1,13 @@
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-testpaths = ["tests"]
+testpaths = ["tests", "tests_acceptance"]
+markers = [
+    "REQ-2.1: docs/REQUIREMENTS.md Abschnitt 2.1 (Zwei Betriebsmodi)",
+    "REQ-2.2: docs/REQUIREMENTS.md Abschnitt 2.2 (Templates)",
+    "REQ-2.3: docs/REQUIREMENTS.md Abschnitt 2.3 (Weitere Konfigurationsfelder)",
+    "REQ-2.4: docs/REQUIREMENTS.md Abschnitt 2.4 (Automatische Neuberechnung)",
+    "REQ-2.5: docs/REQUIREMENTS.md Abschnitt 2.5 (Bearbeitbarkeit nach dem Anlegen)",
+    "REQ-2.6: docs/REQUIREMENTS.md Abschnitt 2.6 (nur Persistenz-Garantie der Info-Bereiche)",
+    "REQ-2.8: docs/REQUIREMENTS.md Abschnitt 2.8 (Forecast-Diagramm-Karte, Logik über Node-Bridge)",
+]

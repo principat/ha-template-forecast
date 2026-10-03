@@ -160,6 +160,10 @@ conventions to follow so contributions fit the existing project.
 - `tests/` - mocked unit/flow tests (fast, no real HA install).
 - `tests_e2e/` - real-browser end-to-end tests against a real, throwaway HA
   instance.
+- `tests_acceptance/` - pytest-bdd acceptance suite: German Gherkin feature
+  files that are an executable version of `docs/REQUIREMENTS.md`'s
+  functional requirements, deliberately kept implementation-agnostic (see
+  its own README for the pattern and its scope).
 - `frontend/` - source of the Forecast Chart dashboard card (TypeScript, own
   toolchain, tests and README). The build output lives in
   `custom_components/template_forecast/www/` and is committed; the only Python link is
@@ -179,13 +183,15 @@ conventions to follow so contributions fit the existing project.
 ### Tests
 
 ```bash
-pip install -r requirements_test.txt
+pip install -r requirements_acceptance.txt
 python -m pytest
 ```
 
 This runs entirely in-process against a mocked Home Assistant core
 ([pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)) -
 no real HA install, no restart, no manual click-through needed to check a change.
+(`requirements_acceptance.txt` layers on top of `requirements_test.txt`; use
+that alone if you only care about `tests/`.)
 
 - `tests/test_config_flow.py` / `tests/test_sensor.py`: the config/options flow
   (generate/transform, rejection of invalid or failing templates) and the
@@ -199,6 +205,10 @@ no real HA install, no restart, no manual click-through needed to check a change
   sync, and translation keys referenced by `config_flow.py` that don't exist.
   It also loads the strings through HA's real translation loader, the same
   path the frontend uses.
+- `tests_acceptance/`: pytest-bdd acceptance suite exercising
+  `docs/REQUIREMENTS.md`'s functional requirements as German Gherkin
+  scenarios, through the same config-flow/sensor API as the tests above but
+  behind an implementation-hiding `Driver` (see `tests_acceptance/README.md`).
 
 Always run this repo's pytest via `python -m pytest`, not the bare `pytest`
 entry point - the latter doesn't add the repo root to `sys.path`, which
