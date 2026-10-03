@@ -62,3 +62,6 @@ Every file is structured the same way:
 
 You have a useful configuration? Open an issue with the
 ["Example" template](https://github.com/principat/ha-template-forecast/issues/new?template=example.yml).
+
+More examples contributed by the community:
+[issues labeled `example`](https://github.com/principat/ha-template-forecast/issues?q=is%3Aissue+label%3Aexample).

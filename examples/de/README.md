@@ -63,3 +63,6 @@ Jede Datei ist gleich aufgebaut:
 
 Du hast eine nützliche Konfiguration? Eröffne ein Issue mit der
 [Vorlage „Example"](https://github.com/principat/ha-template-forecast/issues/new?template=example.yml).
+
+Weitere Beispiele aus der Community:
+[Issues mit dem Label `example`](https://github.com/principat/ha-template-forecast/issues?q=is%3Aissue+label%3Aexample).
