@@ -1,0 +1,45 @@
+name: Frontend
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+      - "custom_components/template_forecast/www/**"
+      - ".github/workflows/test-frontend.yml"
+
+jobs:
+  card:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Committed bundle is up to date
+        working-directory: .
+        run: |
+          if ! git diff --exit-code -- custom_components/template_forecast/www; then
+            echo "::error::www/forecast-chart-card.js is out of date. Run 'npm run build' in frontend/ and commit the result."
+            exit 1
+          fi

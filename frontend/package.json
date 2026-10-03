@@ -1,0 +1,21 @@
+{
+  "name": "forecast-chart-card",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Lovelace card that plots forecast list attributes (state attributes holding a list of time/value entries) with Plotly.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lit": "^3.3.3",
+    "plotly.js-basic-dist-min": "^4.1.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}
