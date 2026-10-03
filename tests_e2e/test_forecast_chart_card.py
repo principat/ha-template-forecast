@@ -113,6 +113,46 @@ def test_card_draws_one_trace_per_value_field(ha_page):
     assert traces == 2
 
 
+def test_card_inside_a_shadow_root_keeps_legend_and_axis_titles_in_the_card(ha_page):
+    """Home Assistant puts cards into shadow roots, where Plotly's global stylesheet does not
+    apply. Without the card copying it, the second SVG layer (axis titles, legend) is not
+    stacked on the first and ends up below the chart, outside the card."""
+    result = ha_page.evaluate(
+        f"""
+        async () => {{
+          const ha = document.querySelector('home-assistant');
+          const host = document.createElement('div');
+          host.style.cssText = 'position:fixed;top:0;left:0;width:360px;z-index:99999;background:#fff';
+          document.body.appendChild(host);
+          const root = host.attachShadow({{mode: 'open'}});
+          const card = document.createElement('{CARD}');
+          card.setConfig({{type: 'custom:{CARD}', sources: [{{entity: 'sensor.e2e_forecast'}}]}});
+          card.hass = ha.hass;
+          root.appendChild(card);
+          for (let i = 0; i < 50 && !card.querySelector('.legend'); i++) {{
+            await new Promise((r) => setTimeout(r, 100));
+          }}
+          // wait until the layout has settled (the legend moves while Plotly sizes the chart)
+          const bottom = () => card.querySelector('.legend').getBoundingClientRect().bottom;
+          for (let i = 0; i < 30; i++) {{
+            const before = bottom();
+            await new Promise((r) => setTimeout(r, 200));
+            if (bottom() === before) break;
+          }}
+          const plot = card.querySelector('.tfc-plot').getBoundingClientRect();
+          const legend = card.querySelector('.legend').getBoundingClientRect();
+          const title = card.querySelector('.ytitle').getBoundingClientRect();
+          return {{
+            plotBottom: plot.bottom, legendBottom: legend.bottom,
+            titleBottom: title.bottom, plotTop: plot.top, titleTop: title.top,
+          }};
+        }}
+        """
+    )
+    assert result["legendBottom"] <= result["plotBottom"] + 1, result
+    assert result["plotTop"] <= result["titleTop"] and result["titleBottom"] <= result["plotBottom"] + 1, result
+
+
 def test_card_reports_a_missing_entity_without_breaking(ha_page):
     texts = ha_page.evaluate(
         f"""

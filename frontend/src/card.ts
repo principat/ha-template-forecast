@@ -11,8 +11,11 @@ import { buildSeries, type SeriesError } from "./series";
 type Hass = any;
 
 /**
- * The card renders into the light DOM on purpose: Plotly injects its stylesheet (modebar,
- * hover labels, ...) into document.head, which would not reach a shadow root.
+ * The card renders into the light DOM (no shadow root of its own) so Plotly's popups and hover
+ * labels behave. Plotly injects its stylesheet into document.head, but Home Assistant places
+ * cards inside shadow roots (hui-card, ...) which that stylesheet does not reach - without it
+ * the two SVG layers are not stacked and the axis titles and legend end up below the chart.
+ * `_adoptPlotlyStyles` therefore copies the stylesheet into the shadow root the card lives in.
  */
 export class ForecastChartCard extends LitElement {
   static properties = {
@@ -137,6 +140,23 @@ export class ForecastChartCard extends LitElement {
     this._plotted = false;
   }
 
+  private _adoptPlotlyStyles(): void {
+    const root = this.getRootNode();
+    if (!(root instanceof ShadowRoot)) return; // plain document: the global stylesheet applies
+    const css = [...document.head.querySelectorAll("style")]
+      .filter((el) => el.id.startsWith("plotly.js-style"))
+      // Plotly adds its rules through the CSSOM (insertRule), so textContent is empty
+      .map((el) => Array.from(el.sheet?.cssRules ?? [], (rule) => rule.cssText).join("\n"))
+      .join("\n");
+    let style = root.querySelector<HTMLStyleElement>("style[data-forecast-chart-card]");
+    if (!style) {
+      style = document.createElement("style");
+      style.dataset.forecastChartCard = "plotly";
+      root.prepend(style);
+    }
+    if (style.textContent !== css) style.textContent = css;
+  }
+
   private _draw(): void {
     const cfg = this._config;
     const hass = this._hass;
@@ -146,6 +166,7 @@ export class ForecastChartCard extends LitElement {
       if (this._errors.length) this._errors = [];
       return;
     }
+    this._adoptPlotlyStyles();
     const now = Date.now();
     const result = buildSeries(cfg, hass.states as States, now);
     const style = getComputedStyle(this);
