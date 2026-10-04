@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/principat/ha-template-forecast/compare/v1.6.1...v1.7.0) (2026-10-04)
+
+
+### Features
+
+* **transform:** only output time and value instead of copying the source entry ([feeb25f](https://github.com/principat/ha-template-forecast/commit/feeb25f2f43def28994345eb39b2b6286b683ef5))
+
 ## [1.6.1](https://github.com/principat/ha-template-forecast/compare/v1.6.0...v1.6.1) (2026-10-03)
 
 
