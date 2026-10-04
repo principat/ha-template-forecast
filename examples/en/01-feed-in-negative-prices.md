@@ -90,14 +90,15 @@ respective entry.
 {% set tariff = states('input_number.FEED_IN_TARIFF') | float(0) %}
 {% set gap = [tariff - price, 0] | max %}
 {% if price < 0 %}
-  {{ { "time": item.start_time, "value": 0 } }}
+  {{ 0 }}
 {% else %}
-  {{ { "time": item.start_time, "value": (tariff - 0.20 * gap) | round(4) } }}
+  {{ (tariff - 0.20 * gap) | round(4) }}
 {% endif %}
 ```
 
-The result per entry is a dict with `time` and `value`. The other fields of
-the source (`start_time`, `end_time`, `price_per_kwh`) are kept in the entry.
+The result per entry is `{time, value}`: `time` is taken from the source's `start_time`
+automatically, `value` is the template's result. The other fields of the source
+(`end_time`, `price_per_kwh`) are not copied, which keeps the attribute small.
 
 ## Typical adaptations
 

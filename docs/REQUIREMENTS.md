@@ -71,16 +71,24 @@ Beide Modi benötigen zwei Templates:
     - `value` – `item.value`, falls vorhanden (Komfort-Variable)
   - Rückgabewert:
     - Skalarer Wert → wird zum `value`-Feld des Eintrags:
-      `{"time": <ISO-Zeitstempel>, "value": <Ergebnis>}` (Generate) bzw. Original-Item
-      mit überschriebenem `value` (Transform).
+      `{"time": <ISO-Zeitstempel>, "value": <Ergebnis>}` (Generate) bzw. `{"time": <Zeit des
+      Quell-Eintrags>, "value": <Ergebnis>}` (Transform).
     - Dict-Wert → dessen Keys werden in den Eintrag gemergt (z. B. um zusätzliche
       Felder neben `time`/`value` zu ergänzen).
+  - **Transform-Modus: Ausgabe nur `time` und `value`.** Die Einträge der Ergebnisliste
+    enthalten nur `time` (aus dem Quell-Eintrag übernommen; erkannt werden in dieser
+    Reihenfolge `time`, `start_time`, `datetime`, `start`, `timestamp`; fehlt eine Zeit,
+    entfällt das Feld) und `value`. Weitere Felder des Quell-Eintrags werden **nicht**
+    kopiert, damit das Attribut klein bleibt (es wird in der Datenbank gespeichert). Wer
+    Felder braucht, liefert sie über ein Dict aus dem Template; dessen Schlüssel (auch
+    `time`) überschreiben die übernommenen Werte.
   - Das Zeitformat `"time"` muss kompatibel mit dem sein, was andere
     Forecast-Sensor-Konventionen (z. B. HAEO) erwarten.
 
 - **State-Template** (Pflichtfeld): wird unabhängig vom Attribut-Template gerendert und
   bestimmt den Entity-**Zustand** (State). Verfügbare Variablen (beide Modi):
-  - `forecast` – die bereits berechnete Ergebnisliste
+  - `forecast` – die bereits berechnete Ergebnisliste (Einträge: `time`, `value` und die
+    vom Template als Dict gelieferten Felder)
   - zusätzlich im Transform-Modus: `source` (State der Quell-Entity),
     `source_forecast` (Original-Liste vor der Transformation)
   - alle normalen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, …) sind

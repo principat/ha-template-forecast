@@ -82,7 +82,7 @@
               "attribute_template_info_transform_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nTo merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nEach entry of the new list contains `time` (taken from the source entry) and `value` (your result). Other fields of the source entry are not copied, to keep the attribute small.\n\nTo add fields, such as a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
             }
           }
         }
@@ -147,7 +147,7 @@
               "attribute_template_info_transform_content": "Example"
             },
             "data_description": {
-              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nTo merge extra fields into the item, such as adding a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
+              "attribute_template_info_transform_content": "Evaluated once per item of the source list, to build the new forecast list.\n\nAvailable:\n- `index` – position in the source list\n- `item` – the complete original element from the source list\n- `value` – `item.value`, if present\n\nEach entry of the new list contains `time` (taken from the source entry) and `value` (your result). Other fields of the source entry are not copied, to keep the attribute small.\n\nTo add fields, such as a condition alongside the doubled value, return an object instead:\n```\n'{{ {\"value\": value * 2, \"condition\": \"sunny\"} }}'\n```"
             }
           }
         }

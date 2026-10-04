@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
@@ -42,6 +42,9 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Keys under which source forecasts usually carry the time of an entry, in order of preference.
+_TIME_KEYS = ("time", "start_time", "datetime", "start", "timestamp")
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -62,6 +65,16 @@ def _try_number(value: Any) -> Any:
         except ValueError:
             return value
     return value
+
+
+def _item_time(item: dict[str, Any]) -> Any:
+    """The time of a source entry, whatever the source calls it (None if it has none)."""
+    for key in _TIME_KEYS:
+        value = item.get(key)
+        if value is None:
+            continue
+        return value.isoformat() if isinstance(value, date) else value
+    return None
 
 
 class TemplateForecastSensor(SensorEntity, RestoreEntity):
@@ -266,7 +279,13 @@ class TemplateForecastSensor(SensorEntity, RestoreEntity):
             value = self._attribute_template.async_render(
                 variables, parse_result=True
             )
-            new_item = dict(item)
+            # Only `time` and `value` are carried over - copying the whole source entry would
+            # blow up the attribute (it is stored in the database). Anything else has to be
+            # provided by the template by returning an object.
+            new_item: dict[str, Any] = {}
+            item_time = _item_time(item)
+            if item_time is not None:
+                new_item["time"] = item_time
             if isinstance(value, dict):
                 new_item.update(value)
             else:

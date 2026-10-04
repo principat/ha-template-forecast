@@ -90,15 +90,15 @@ jeweilige Eintrag.
 {% set satz = states('input_number.EINSPEISEVERGUETUNG_SATZ') | float(0) %}
 {% set gap = [satz - strompreis, 0] | max %}
 {% if strompreis < 0 %}
-  {{ { "time": item.start_time, "value": 0 } }}
+  {{ 0 }}
 {% else %}
-  {{ { "time": item.start_time, "value": (satz - 0.20 * gap) | round(4) } }}
+  {{ (satz - 0.20 * gap) | round(4) }}
 {% endif %}
 ```
 
-Das Ergebnis ist je Eintrag ein Dict mit `time` und `value`. Die übrigen
-Felder der Quelle (`start_time`, `end_time`, `price_per_kwh`) bleiben im
-Eintrag erhalten.
+Das Ergebnis je Eintrag ist `{time, value}`: `time` wird automatisch aus `start_time` der
+Quelle übernommen, `value` ist das Ergebnis des Templates. Die übrigen Felder der Quelle
+(`end_time`, `price_per_kwh`) werden nicht kopiert, das hält das Attribut klein.
 
 ## Typische Anpassungen
 

@@ -94,10 +94,15 @@ entry (e.g. to add extra fields alongside `time`/`value`).
 - `item` - the complete original element (dict) from the source attribute
 - `value` - `item.value`, if present (convenience)
 
+Each entry of the resulting list contains `time` (taken from the source entry, whatever
+it calls it: `time`, `start_time`, `datetime`, `start` or `timestamp`) and `value` (the
+template's result). The other fields of the source entry are **not** copied - that keeps
+the attribute small, as it is stored in the database. To keep or add a field, return a
+dict from the template (see above), e.g. `{{ {'value': value * 2, 'end_time': item.end_time} }}`.
+
 **State template (both modes):**
 - `forecast` - the already computed result list (list of `{time, value}` in
-  generate mode; in transform mode the original item's keys, whatever the
-  source entity used, e.g. `{start_time, value}`)
+  both modes, plus whatever fields the template returned as a dict)
 - additionally in transform mode: `source` (state of the source entity),
   `source_forecast` (original list before the transformation)
 - all normal Jinja functions (`states()`, `state_attr()`, `now()`, ...) are
@@ -380,10 +385,16 @@ den Eintrag übernommen (z. B. für zusätzliche Felder neben `time`/`value`).
 - `item` - das vollständige Originalelement (Dict) aus dem Quellattribut
 - `value` - `item.value`, falls vorhanden (Komfortvariable)
 
+Jeder Eintrag der Ergebnisliste enthält `time` (aus dem Quell-Eintrag übernommen, egal wie
+die Quelle es nennt: `time`, `start_time`, `datetime`, `start` oder `timestamp`) und `value`
+(das Ergebnis des Templates). Die übrigen Felder des Quell-Eintrags werden **nicht** kopiert -
+das hält das Attribut klein, da es in der Datenbank gespeichert wird. Um ein Feld zu behalten
+oder hinzuzufügen, ein Dict aus dem Template zurückgeben (siehe oben), z. B.
+`{{ {'value': value * 2, 'end_time': item.end_time} }}`.
+
 **State-Template (beide Modi):**
 - `forecast` - die bereits berechnete Ergebnisliste (Liste aus `{time, value}`
-  im Generate-Modus; im Transform-Modus die Schlüssel des Originaleintrags,
-  was immer die Quelle verwendet, z. B. `{start_time, value}`)
+  in beiden Modi, plus die Felder, die das Template als Dict zurückgegeben hat)
 - zusätzlich im Transform-Modus: `source` (State der Quellentität),
   `source_forecast` (Originalliste vor der Umwandlung)
 - alle üblichen Jinja-Funktionen (`states()`, `state_attr()`, `now()`, ...)

@@ -130,8 +130,9 @@ async def test_transform_mode_applies_template_per_item(hass: HomeAssistant) -> 
 
     forecast = state.attributes["forecast_doubled"]
     assert [f["value"] for f in forecast] == [20, 40, 60]
-    # original timestamps remain unchanged
-    assert forecast[0]["datetime"] == "2026-08-20T10:00:00+00:00"
+    # the time of the source entry is carried over as "time" - and nothing else is
+    assert forecast[0] == {"time": "2026-08-20T10:00:00+00:00", "value": 20}
+    assert all(set(f) == {"time", "value"} for f in forecast)
 
 
 async def test_transform_mode_merges_dict_template_result(
@@ -175,8 +176,9 @@ async def test_transform_mode_merges_dict_template_result(
     forecast = state.attributes["forecast_multi"]
     assert [f["value"] for f in forecast] == [20, 40]
     assert [f["condition"] for f in forecast] == ["sunny", "sunny"]
-    # original timestamps remain unchanged
-    assert forecast[0]["datetime"] == "2026-08-20T10:00:00+00:00"
+    # the time is carried over, the original "datetime" key is not
+    assert forecast[0]["time"] == "2026-08-20T10:00:00+00:00"
+    assert "datetime" not in forecast[0]
 
 
 async def test_transform_mode_recomputes_on_source_update(hass: HomeAssistant) -> None:
@@ -302,3 +304,85 @@ async def test_standard_sensor_properties_default_to_none(hass: HomeAssistant) -
     assert state is not None
     assert state.attributes.get("device_class") is None
     assert state.attributes.get("state_class") is None
+
+
+async def test_transform_mode_does_not_copy_the_original_entry(hass: HomeAssistant) -> None:
+    """Extra keys of the source entries stay out of the attribute unless the template adds them."""
+    hass.states.async_set(
+        "sensor.prices",
+        "0.1",
+        {
+            "data": [
+                {
+                    "start_time": "2026-10-01T00:00:00+02:00",
+                    "end_time": "2026-10-01T00:15:00+02:00",
+                    "price_per_kwh": 0.1,
+                },
+                {
+                    "start_time": "2026-10-01T00:15:00+02:00",
+                    "end_time": "2026-10-01T00:30:00+02:00",
+                    "price_per_kwh": 0.2,
+                },
+            ]
+        },
+    )
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Slim",
+        data={
+            CONF_MODE: MODE_TRANSFORM,
+            CONF_NAME: "Slim",
+            CONF_SOURCE_ENTITY: "sensor.prices",
+            CONF_SOURCE_ATTRIBUTE: "data",
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: "{{ item.price_per_kwh * 10 }}",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.slim")
+    assert state is not None
+    # `start_time` becomes `time`; end_time and price_per_kwh are not copied
+    assert state.attributes["forecast"] == [
+        {"time": "2026-10-01T00:00:00+02:00", "value": 1.0},
+        {"time": "2026-10-01T00:15:00+02:00", "value": 2.0},
+    ]
+    assert state.state == "1.0"
+
+
+async def test_transform_mode_template_can_bring_back_extra_fields(
+    hass: HomeAssistant,
+) -> None:
+    """A template that returns an object can add fields (and override the time) explicitly."""
+    hass.states.async_set(
+        "sensor.prices",
+        "0.1",
+        {"data": [{"start_time": "2026-10-01T00:00:00+02:00", "end_time": "x", "p": 1}]},
+    )
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Extra",
+        data={
+            CONF_MODE: MODE_TRANSFORM,
+            CONF_NAME: "Extra",
+            CONF_SOURCE_ENTITY: "sensor.prices",
+            CONF_SOURCE_ATTRIBUTE: "data",
+            CONF_STATE_TEMPLATE: "{{ forecast[0].value }}",
+            CONF_ATTRIBUTE_TEMPLATE: "{{ {'value': item.p, 'end_time': item.end_time} }}",
+        },
+    )
+    entry.add_to_hass(hass)
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get("sensor.extra")
+    assert state is not None
+    assert state.attributes["forecast"] == [
+        {"time": "2026-10-01T00:00:00+02:00", "value": 1, "end_time": "x"}
+    ]
